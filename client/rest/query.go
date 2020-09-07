@@ -373,7 +373,7 @@ func queryRequestContextHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		params := types.QueryRequestContextRequest{
-			RequestContextID: requestContextID,
+			RequestContextId: requestContextID,
 		}
 
 		requestContext, err := serviceutils.QueryRequestContext(cliCtx, types.RouterKey, params)

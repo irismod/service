@@ -122,7 +122,7 @@ message QueryWithdrawAddressResponse {
 
 // QueryRequestContextRequest is request type for the Query/RequestContext RPC method
 message QueryRequestContextRequest {
-    bytes request_context_id = 1 [(gogoproto.customname) = "RequestContextID", (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"];
+    bytes request_context_id = 1 [(gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"];
 }
 
 // QueryRequestContextResponse is response type for the Query/RequestContext RPC method
@@ -132,7 +132,7 @@ message QueryRequestContextResponse {
 
 // QueryRequestRequest is request type for the Query/Request RPC method
 message QueryRequestRequest {
-    bytes request_id = 1 [(gogoproto.customname) = "RequestID", (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"];
+    bytes request_id = 1 [(gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"];
 }
 
 // QueryRequestResponse is response type for the Query/Request RPC method
@@ -153,7 +153,7 @@ message QueryRequestsResponse {
 
 // QueryRequestsByReqCtxRequest is request type for the Query/RequestsByReqCtx RPC method
 message QueryRequestsByReqCtxRequest {
-    bytes request_context_id = 1 [(gogoproto.customname) = "RequestContextID", (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"];
+    bytes request_context_id = 1 [(gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"];
     uint64 batch_counter = 2;
 }
 
@@ -164,7 +164,7 @@ message QueryRequestsByReqCtxResponse {
 
 // QueryResponseRequest is request type for the Query/Response RPC method
 message QueryResponseRequest {
-    bytes request_id = 1 [(gogoproto.customname) = "RequestID", (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"];
+    bytes request_id = 1 [(gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"];
 }
 
 // QueryResponseResponse is response type for the Query/Response RPC method
@@ -174,7 +174,7 @@ message QueryResponseResponse {
 
 // QueryResponsesRequest is request type for the Query/Responses RPC method
 message QueryResponsesRequest {
-    bytes request_context_id = 1 [(gogoproto.customname) = "RequestContextID", (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"];
+    bytes request_context_id = 1 [(gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"];
     uint64 batch_counter = 2;
 }
 

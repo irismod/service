@@ -201,7 +201,7 @@ func handleMsgCallService(ctx sdk.Context, k keeper.Keeper, msg *types.MsgCallSe
 
 // handleMsgRespondService handles MsgRespondService
 func handleMsgRespondService(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRespondService) (*sdk.Result, error) {
-	request, _, err := k.AddResponse(ctx, msg.RequestID, msg.Provider, msg.Result, msg.Output)
+	request, _, err := k.AddResponse(ctx, msg.RequestId, msg.Provider, msg.Result, msg.Output)
 	if err != nil {
 		return nil, err
 	}
@@ -211,8 +211,8 @@ func handleMsgRespondService(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRes
 			sdk.EventTypeMessage,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
 			sdk.NewAttribute(sdk.AttributeKeySender, msg.Provider.String()),
-			sdk.NewAttribute(types.AttributeKeyRequestContextID, request.RequestContextID.String()),
-			sdk.NewAttribute(types.AttributeKeyRequestID, msg.RequestID.String()),
+			sdk.NewAttribute(types.AttributeKeyRequestContextID, request.RequestContextId.String()),
+			sdk.NewAttribute(types.AttributeKeyRequestID, msg.RequestId.String()),
 		),
 	})
 
@@ -221,11 +221,11 @@ func handleMsgRespondService(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRes
 
 // handleMsgPauseRequestContext handles MsgPauseRequestContext
 func handleMsgPauseRequestContext(ctx sdk.Context, k keeper.Keeper, msg *types.MsgPauseRequestContext) (*sdk.Result, error) {
-	if err := k.CheckAuthority(ctx, msg.Consumer, msg.RequestContextID, true); err != nil {
+	if err := k.CheckAuthority(ctx, msg.Consumer, msg.RequestContextId, true); err != nil {
 		return nil, err
 	}
 
-	if err := k.PauseRequestContext(ctx, msg.RequestContextID, msg.Consumer); err != nil {
+	if err := k.PauseRequestContext(ctx, msg.RequestContextId, msg.Consumer); err != nil {
 		return nil, err
 	}
 
@@ -242,11 +242,11 @@ func handleMsgPauseRequestContext(ctx sdk.Context, k keeper.Keeper, msg *types.M
 
 // handleMsgStartRequestContext handles MsgStartRequestContext
 func handleMsgStartRequestContext(ctx sdk.Context, k keeper.Keeper, msg *types.MsgStartRequestContext) (*sdk.Result, error) {
-	if err := k.CheckAuthority(ctx, msg.Consumer, msg.RequestContextID, true); err != nil {
+	if err := k.CheckAuthority(ctx, msg.Consumer, msg.RequestContextId, true); err != nil {
 		return nil, err
 	}
 
-	if err := k.StartRequestContext(ctx, msg.RequestContextID, msg.Consumer); err != nil {
+	if err := k.StartRequestContext(ctx, msg.RequestContextId, msg.Consumer); err != nil {
 		return nil, err
 	}
 
@@ -263,11 +263,11 @@ func handleMsgStartRequestContext(ctx sdk.Context, k keeper.Keeper, msg *types.M
 
 // handleMsgKillRequestContext handles MsgKillRequestContext
 func handleMsgKillRequestContext(ctx sdk.Context, k keeper.Keeper, msg *types.MsgKillRequestContext) (*sdk.Result, error) {
-	if err := k.CheckAuthority(ctx, msg.Consumer, msg.RequestContextID, true); err != nil {
+	if err := k.CheckAuthority(ctx, msg.Consumer, msg.RequestContextId, true); err != nil {
 		return nil, err
 	}
 
-	if err := k.KillRequestContext(ctx, msg.RequestContextID, msg.Consumer); err != nil {
+	if err := k.KillRequestContext(ctx, msg.RequestContextId, msg.Consumer); err != nil {
 		return nil, err
 	}
 
@@ -284,12 +284,12 @@ func handleMsgKillRequestContext(ctx sdk.Context, k keeper.Keeper, msg *types.Ms
 
 // handleMsgUpdateRequestContext handles MsgUpdateRequestContext
 func handleMsgUpdateRequestContext(ctx sdk.Context, k keeper.Keeper, msg *types.MsgUpdateRequestContext) (*sdk.Result, error) {
-	if err := k.CheckAuthority(ctx, msg.Consumer, msg.RequestContextID, true); err != nil {
+	if err := k.CheckAuthority(ctx, msg.Consumer, msg.RequestContextId, true); err != nil {
 		return nil, err
 	}
 
 	if err := k.UpdateRequestContext(
-		ctx, msg.RequestContextID, msg.Providers, 0, msg.ServiceFeeCap,
+		ctx, msg.RequestContextId, msg.Providers, 0, msg.ServiceFeeCap,
 		msg.Timeout, msg.RepeatedFrequency, msg.RepeatedTotal, msg.Consumer,
 	); err != nil {
 		return nil, err

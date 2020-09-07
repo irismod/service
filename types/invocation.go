@@ -98,7 +98,7 @@ func NewCompactRequest(
 	expirationHeight int64,
 ) CompactRequest {
 	return CompactRequest{
-		RequestContextID:           requestContextID,
+		RequestContextId:           requestContextID,
 		RequestContextBatchCounter: batchCounter,
 		Provider:                   provider,
 		ServiceFee:                 serviceFee,
@@ -122,7 +122,7 @@ func NewRequest(
 	batchCounter uint64,
 ) Request {
 	return Request{
-		ID:                         id,
+		Id:                         id,
 		ServiceName:                serviceName,
 		Provider:                   provider,
 		Consumer:                   consumer,
@@ -131,14 +131,14 @@ func NewRequest(
 		SuperMode:                  superMode,
 		RequestHeight:              requestHeight,
 		ExpirationHeight:           expirationHeight,
-		RequestContextID:           requestContextID,
+		RequestContextId:           requestContextID,
 		RequestContextBatchCounter: batchCounter,
 	}
 }
 
 // Empty returns true if empty
 func (r Request) Empty() bool {
-	return len(r.ID) == 0
+	return len(r.Id) == 0
 }
 
 // NewResponse creates a new Response instance
@@ -155,14 +155,14 @@ func NewResponse(
 		Consumer:                   consumer,
 		Result:                     result,
 		Output:                     output,
-		RequestContextID:           requestContextID,
+		RequestContextId:           requestContextID,
 		RequestContextBatchCounter: batchCounter,
 	}
 }
 
 // Empty returns true if empty
 func (r Response) Empty() bool {
-	return len(r.RequestContextID) == 0
+	return len(r.RequestContextId) == 0
 }
 
 // Result defines a struct for the response result

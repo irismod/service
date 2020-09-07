@@ -102,7 +102,6 @@ message MsgCallService {
 // MsgRespondService defines an SDK message to respond a service request.
 message MsgRespondService {
   bytes request_id = 1 [
-    (gogoproto.customname) = "RequestID",
     (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes",
     (gogoproto.moretags) = "yaml:\"request_id\""
   ];
@@ -114,7 +113,6 @@ message MsgRespondService {
 // MsgPauseRequestContext defines an SDK message to pause a service request.
 message MsgPauseRequestContext {
   bytes request_context_id = 1 [
-    (gogoproto.customname) = "RequestContextID",
     (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes",
     (gogoproto.moretags) = "yaml:\"request_context_id\""
   ];
@@ -124,7 +122,6 @@ message MsgPauseRequestContext {
 // MsgStartRequestContext defines an SDK message to resume a service request.
 message MsgStartRequestContext {
   bytes request_context_id = 1 [
-    (gogoproto.customname) = "RequestContextID",
     (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes",
     (gogoproto.moretags) = "yaml:\"request_context_id\""
   ];
@@ -134,7 +131,6 @@ message MsgStartRequestContext {
 // MsgKillRequestContext defines an SDK message to terminate a service request.
 message MsgKillRequestContext {
   bytes request_context_id = 1 [
-    (gogoproto.customname) = "RequestContextID",
     (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes",
     (gogoproto.moretags) = "yaml:\"request_context_id\""
   ];
@@ -144,7 +140,6 @@ message MsgKillRequestContext {
 // MsgUpdateRequestContext defines an SDK message to update a service request context.
 message MsgUpdateRequestContext {
   bytes request_context_id = 1 [
-    (gogoproto.customname) = "RequestContextID",
     (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes",
     (gogoproto.moretags) = "yaml:\"request_context_id\""
   ];
@@ -228,7 +223,6 @@ message RequestContext {
 // Request defines a standard for request.
 message Request {
   bytes id            = 1 [
-    (gogoproto.customname) = "ID",
     (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes"
   ];
   string service_name = 2 [(gogoproto.moretags) = "yaml:\"service_name\""];
@@ -244,7 +238,6 @@ message Request {
   int64 request_height     = 8 [(gogoproto.moretags) = "yaml:\"request_height\""];
   int64 expiration_height  = 9 [(gogoproto.moretags) = "yaml:\"expiration_height\""];
   bytes request_context_id = 10 [
-    (gogoproto.customname) = "RequestContextID",
     (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes",
     (gogoproto.moretags) = "yaml:\"request_context_id\""
   ];
@@ -254,7 +247,6 @@ message Request {
 // CompactRequest defines a standard for compact request.
 message CompactRequest {
   bytes request_context_id = 1 [
-    (gogoproto.customname) = "RequestContextID",
     (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes",
     (gogoproto.moretags) = "yaml:\"request_context_id\""
   ];
@@ -276,7 +268,6 @@ message Response {
   string result  = 3;
   string output  = 4;
   bytes request_context_id             = 5 [
-    (gogoproto.customname) = "RequestContextID",
     (gogoproto.casttype) = "github.com/tendermint/tendermint/libs/bytes.HexBytes",
     (gogoproto.moretags) = "yaml:\"request_context_id\""
   ];

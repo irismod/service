@@ -86,7 +86,7 @@ func (k Keeper) RequestContext(c context.Context, req *types.QueryRequestContext
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	requestContext, _ := k.GetRequestContext(ctx, req.RequestContextID)
+	requestContext, _ := k.GetRequestContext(ctx, req.RequestContextId)
 	return &types.QueryRequestContextResponse{RequestContext: &requestContext}, nil
 }
 
@@ -97,12 +97,12 @@ func (k Keeper) Request(c context.Context, req *types.QueryRequestRequest) (*typ
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if len(req.RequestID) != types.RequestIDLen {
+	if len(req.RequestId) != types.RequestIDLen {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidRequestID, "invalid length, expected: %d, got: %d",
-			types.RequestIDLen, len(req.RequestID))
+			types.RequestIDLen, len(req.RequestId))
 	}
 
-	request, _ := k.GetRequest(ctx, req.RequestID)
+	request, _ := k.GetRequest(ctx, req.RequestId)
 
 	return &types.QueryRequestResponse{Request: &request}, nil
 }
@@ -137,7 +137,7 @@ func (k Keeper) RequestsByReqCtx(c context.Context, req *types.QueryRequestsByRe
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	iterator := k.RequestsIteratorByReqCtx(ctx, req.RequestContextID, req.BatchCounter)
+	iterator := k.RequestsIteratorByReqCtx(ctx, req.RequestContextId, req.BatchCounter)
 	defer iterator.Close()
 
 	requests := make([]*types.Request, 0)
@@ -159,12 +159,12 @@ func (k Keeper) Response(c context.Context, req *types.QueryResponseRequest) (*t
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	if len(req.RequestID) != types.RequestIDLen {
+	if len(req.RequestId) != types.RequestIDLen {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidRequestID, "invalid length, expected: %d, got: %d",
-			types.RequestIDLen, len(req.RequestID))
+			types.RequestIDLen, len(req.RequestId))
 	}
 
-	response, _ := k.GetResponse(ctx, req.RequestID)
+	response, _ := k.GetResponse(ctx, req.RequestId)
 	return &types.QueryResponseResponse{Response: &response}, nil
 }
 
@@ -175,7 +175,7 @@ func (k Keeper) Responses(c context.Context, req *types.QueryResponsesRequest) (
 
 	ctx := sdk.UnwrapSDKContext(c)
 
-	iterator := k.ResponsesIteratorByReqCtx(ctx, req.RequestContextID, req.BatchCounter)
+	iterator := k.ResponsesIteratorByReqCtx(ctx, req.RequestContextId, req.BatchCounter)
 	defer iterator.Close()
 
 	responses := make([]*types.Response, 0)

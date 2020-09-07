@@ -34,7 +34,7 @@ func QueryRequestContext(cliCtx client.Context, queryRoute string, params types.
 	}
 
 	if requestContext.Empty() {
-		return requestContext, fmt.Errorf("unknown request context: %s", hex.EncodeToString(params.RequestContextID))
+		return requestContext, fmt.Errorf("unknown request context: %s", hex.EncodeToString(params.RequestContextId))
 	}
 	return requestContext, nil
 }
@@ -42,7 +42,7 @@ func QueryRequestContext(cliCtx client.Context, queryRoute string, params types.
 // QueryRequestContextByTxQuery will query for a single request context via a direct txs tags query.
 func QueryRequestContextByTxQuery(cliCtx client.Context, queryRoute string, params types.QueryRequestContextRequest) (
 	requestContext types.RequestContext, err error) {
-	txHash, msgIndex, err := types.SplitRequestContextID(params.RequestContextID)
+	txHash, msgIndex, err := types.SplitRequestContextID(params.RequestContextId)
 	if err != nil {
 		return requestContext, err
 	}
@@ -84,7 +84,7 @@ func QueryRequestByTxQuery(cliCtx client.Context, queryRoute string, requestID t
 
 	// query request context
 	requestContext, err := QueryRequestContext(cliCtx, queryRoute, types.QueryRequestContextRequest{
-		RequestContextID: contextID,
+		RequestContextId: contextID,
 	})
 
 	if err != nil {
@@ -134,7 +134,7 @@ func QueryRequestByTxQuery(cliCtx client.Context, queryRoute string, requestID t
 						requestContext.SuperMode,
 						compactRequest.RequestHeight,
 						compactRequest.ExpirationHeight,
-						compactRequest.RequestContextID,
+						compactRequest.RequestContextId,
 						compactRequest.RequestContextBatchCounter,
 					)
 
@@ -174,7 +174,7 @@ func QueryResponseByTxQuery(cliCtx client.Context, queryRoute string, requestID 
 
 	// query request context
 	requestContext, err := QueryRequestContext(cliCtx, queryRoute, types.QueryRequestContextRequest{
-		RequestContextID: contextID,
+		RequestContextId: contextID,
 	})
 
 	if err != nil {
@@ -184,7 +184,7 @@ func QueryResponseByTxQuery(cliCtx client.Context, queryRoute string, requestID 
 	for _, msg := range result.Txs[0].GetTx().GetMsgs() {
 		if msg.Type() == types.TypeMsgRespondService {
 			responseMsg := msg.(*types.MsgRespondService)
-			if responseMsg.RequestID.String() != requestID.String() {
+			if responseMsg.RequestId.String() != requestID.String() {
 				continue
 			}
 

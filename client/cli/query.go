@@ -273,7 +273,7 @@ $ %s query service request <request-id>
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Request(context.Background(), &types.QueryRequestRequest{
-				RequestID: requestID,
+				RequestId: requestID,
 			})
 			if err != nil {
 				return err
@@ -351,7 +351,7 @@ $ %s query service requests <service-name> <provider> | <request-context-id> <ba
 					return err
 				}
 				res, err := queryClient.RequestsByReqCtx(context.Background(), &types.QueryRequestsByReqCtxRequest{
-					RequestContextID: requestContextID,
+					RequestContextId: requestContextID,
 					BatchCounter:     batchCounter,
 				})
 				if err != nil {
@@ -397,7 +397,7 @@ $ %s query service response <request-id>
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Response(context.Background(), &types.QueryResponseRequest{
-				RequestID: requestID,
+				RequestId: requestID,
 			})
 			if err != nil {
 				return err
@@ -459,7 +459,7 @@ $ %s query service responses <request-context-id> <batch-counter>
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Responses(context.Background(), &types.QueryResponsesRequest{
-				RequestContextID: requestContextID,
+				RequestContextId: requestContextID,
 				BatchCounter:     batchCounter,
 			})
 			if err != nil {
@@ -503,7 +503,7 @@ $ %s query service request-context <request-context-id>
 			}
 
 			res, err := utils.QueryRequestContext(clientCtx, types.QuerierRoute, types.QueryRequestContextRequest{
-				RequestContextID: requestContextID,
+				RequestContextId: requestContextID,
 			})
 
 			if err != nil {

@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 
+	gogotypes "github.com/gogo/protobuf/types"
+
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	gogotypes "github.com/gogo/protobuf/types"
-	tmbytes "github.com/tendermint/tendermint/libs/bytes"
 
 	"github.com/irismod/service/types"
 )
@@ -498,7 +500,7 @@ func (k Keeper) GetRequest(ctx sdk.Context, requestID tmbytes.HexBytes) (request
 		return request, false
 	}
 
-	requestContext, found := k.GetRequestContext(ctx, compactRequest.RequestContextID)
+	requestContext, found := k.GetRequestContext(ctx, compactRequest.RequestContextId)
 	if !found {
 		return request, false
 	}
@@ -513,7 +515,7 @@ func (k Keeper) GetRequest(ctx sdk.Context, requestID tmbytes.HexBytes) (request
 		requestContext.SuperMode,
 		compactRequest.RequestHeight,
 		compactRequest.ExpirationHeight,
-		compactRequest.RequestContextID,
+		compactRequest.RequestContextId,
 		compactRequest.RequestContextBatchCounter,
 	)
 
@@ -889,7 +891,7 @@ func (k Keeper) AddResponse(
 		}
 	}
 
-	requestContextID := request.RequestContextID
+	requestContextID := request.RequestContextId
 
 	response = types.NewResponse(provider, request.Consumer, result, output, requestContextID, request.RequestContextBatchCounter)
 	k.SetResponse(ctx, requestID, response)

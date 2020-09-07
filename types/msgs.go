@@ -536,7 +536,7 @@ func NewMsgRespondService(
 	output string,
 ) *MsgRespondService {
 	return &MsgRespondService{
-		RequestID: requestID,
+		RequestId: requestID,
 		Provider:  provider,
 		Result:    result,
 		Output:    output,
@@ -565,7 +565,7 @@ func (msg MsgRespondService) ValidateBasic() error {
 		return err
 	}
 
-	if err := ValidateRequestID(msg.RequestID); err != nil {
+	if err := ValidateRequestID(msg.RequestId); err != nil {
 		return err
 	}
 
@@ -591,7 +591,7 @@ func (msg MsgRespondService) GetSigners() []sdk.AccAddress {
 // NewMsgPauseRequestContext creates a new MsgPauseRequestContext instance
 func NewMsgPauseRequestContext(requestContextID tmbytes.HexBytes, consumer sdk.AccAddress) *MsgPauseRequestContext {
 	return &MsgPauseRequestContext{
-		RequestContextID: requestContextID,
+		RequestContextId: requestContextID,
 		Consumer:         consumer,
 	}
 }
@@ -617,7 +617,7 @@ func (msg MsgPauseRequestContext) ValidateBasic() error {
 	if err := ValidateConsumer(msg.Consumer); err != nil {
 		return err
 	}
-	return ValidateContextID(msg.RequestContextID)
+	return ValidateContextID(msg.RequestContextId)
 }
 
 // GetSigners implements Msg.
@@ -630,7 +630,7 @@ func (msg MsgPauseRequestContext) GetSigners() []sdk.AccAddress {
 // NewMsgStartRequestContext creates a new MsgStartRequestContext instance
 func NewMsgStartRequestContext(requestContextID tmbytes.HexBytes, consumer sdk.AccAddress) *MsgStartRequestContext {
 	return &MsgStartRequestContext{
-		RequestContextID: requestContextID,
+		RequestContextId: requestContextID,
 		Consumer:         consumer,
 	}
 }
@@ -656,7 +656,7 @@ func (msg MsgStartRequestContext) ValidateBasic() error {
 	if err := ValidateConsumer(msg.Consumer); err != nil {
 		return err
 	}
-	return ValidateContextID(msg.RequestContextID)
+	return ValidateContextID(msg.RequestContextId)
 }
 
 // GetSigners implements Msg.
@@ -669,7 +669,7 @@ func (msg MsgStartRequestContext) GetSigners() []sdk.AccAddress {
 // NewMsgKillRequestContext creates a new MsgKillRequestContext instance
 func NewMsgKillRequestContext(requestContextID tmbytes.HexBytes, consumer sdk.AccAddress) *MsgKillRequestContext {
 	return &MsgKillRequestContext{
-		RequestContextID: requestContextID,
+		RequestContextId: requestContextID,
 		Consumer:         consumer,
 	}
 }
@@ -695,7 +695,7 @@ func (msg MsgKillRequestContext) ValidateBasic() error {
 	if err := ValidateConsumer(msg.Consumer); err != nil {
 		return err
 	}
-	return ValidateContextID(msg.RequestContextID)
+	return ValidateContextID(msg.RequestContextId)
 }
 
 // GetSigners implements Msg.
@@ -716,7 +716,7 @@ func NewMsgUpdateRequestContext(
 	consumer sdk.AccAddress,
 ) *MsgUpdateRequestContext {
 	return &MsgUpdateRequestContext{
-		RequestContextID:  requestContextID,
+		RequestContextId:  requestContextID,
 		Providers:         providers,
 		ServiceFeeCap:     serviceFeeCap,
 		Timeout:           timeout,
@@ -756,7 +756,7 @@ func (msg MsgUpdateRequestContext) ValidateBasic() error {
 		return err
 	}
 
-	if err := ValidateContextID(msg.RequestContextID); err != nil {
+	if err := ValidateContextID(msg.RequestContextId); err != nil {
 		return err
 	}
 

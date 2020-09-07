@@ -389,7 +389,7 @@ func (suite *KeeperTestSuite) TestKeeperRequestService() {
 		suite.Equal(blockHeight, request.RequestHeight)
 		suite.Equal(blockHeight+testTimeout, request.ExpirationHeight)
 		suite.Equal(requestContext.BatchCounter, request.RequestContextBatchCounter)
-		suite.Equal(requestContextID, request.RequestContextID)
+		suite.Equal(requestContextID, request.RequestContextId)
 	}
 
 	suite.Equal(newProviders, requestProviders)
@@ -442,7 +442,7 @@ func (suite *KeeperTestSuite) TestKeeper_Respond_Service() {
 
 	suite.Equal(provider, response.Provider)
 	suite.Equal(consumer, response.Consumer)
-	suite.Equal(requestContextID, response.RequestContextID)
+	suite.Equal(requestContextID, response.RequestContextId)
 	suite.Equal(requestContext.BatchCounter, response.RequestContextBatchCounter)
 
 	volume := suite.keeper.GetRequestVolume(ctx, consumer, requestContext.ServiceName, provider)
