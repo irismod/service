@@ -3,11 +3,13 @@ package keeper
 import (
 	"strings"
 
+	gogotypes "github.com/gogo/protobuf/types"
+
+	abci "github.com/tendermint/tendermint/abci/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	gogotypes "github.com/gogo/protobuf/types"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/irismod/service/types"
 )
@@ -152,8 +154,11 @@ func queryRequest(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQuerie
 	}
 
 	if len(params.RequestID) != types.RequestIDLen {
-		return nil, sdkerrors.Wrapf(types.ErrInvalidRequestID, "invalid length, expected: %d, got: %d",
-			types.RequestIDLen, len(params.RequestID))
+		return nil, sdkerrors.Wrapf(
+			types.ErrInvalidRequestID,
+			"invalid length, expected: %d, got: %d",
+			types.RequestIDLen, len(params.RequestID),
+		)
 	}
 
 	request, _ := k.GetRequest(ctx, params.RequestID)
@@ -290,8 +295,9 @@ func queryEarnedFees(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQue
 
 	fees, found := k.GetEarnedFees(ctx, params.Provider)
 	if !found {
-		return nil, sdkerrors.Wrapf(types.ErrNoEarnedFees, "no earned fees for %s",
-			params.Provider.String())
+		return nil, sdkerrors.Wrapf(
+			types.ErrNoEarnedFees, "no earned fees for %s", params.Provider.String(),
+		)
 	}
 
 	bz, err := codec.MarshalJSONIndent(legacyQuerierCdc, fees)
@@ -311,11 +317,12 @@ func querySchema(ctx sdk.Context, req abci.RequestQuery, k Keeper, legacyQuerier
 	var schemaName = strings.ToLower(params.SchemaName)
 	var schema string
 
-	if schemaName == "pricing" {
+	switch schemaName {
+	case "pricing":
 		schema = types.PricingSchema
-	} else if schemaName == "result" {
+	case "result":
 		schema = types.ResultSchema
-	} else {
+	default:
 		return nil, sdkerrors.Wrap(types.ErrInvalidSchemaName, schema)
 	}
 

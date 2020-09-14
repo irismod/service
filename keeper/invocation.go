@@ -52,7 +52,9 @@ func (k Keeper) CreateRequestContext(
 	state types.RequestContextState,
 	responseThreshold uint32,
 	moduleName string,
-) (tmbytes.HexBytes, error) {
+) (
+	tmbytes.HexBytes, error,
+) {
 	if len(moduleName) != 0 {
 		if _, err := k.GetResponseCallback(moduleName); err != nil {
 			return nil, err
@@ -380,7 +382,7 @@ func (k Keeper) InitiateRequests(
 	requestContext, _ := k.GetRequestContext(ctx, requestContextID)
 	requestContext.BatchCounter++
 
-	var requests []types.CompactRequest
+	requests := []types.CompactRequest{}
 
 	for providerIndex, provider := range providers {
 		request := k.buildRequest(
@@ -397,8 +399,10 @@ func (k Keeper) InitiateRequests(
 		requests = append(requests, request)
 
 		// tags for provider by one service
-		providerRequests[types.ActionTag(requestContext.ServiceName, provider.String())] =
-			append(providerRequests[types.ActionTag(requestContext.ServiceName, provider.String())], requestID.String())
+		providerRequests[types.ActionTag(requestContext.ServiceName, provider.String())] = append(
+			providerRequests[types.ActionTag(requestContext.ServiceName, provider.String())],
+			requestID.String(),
+		)
 	}
 
 	requestContext.BatchState = types.BATCHRUNNING
@@ -453,7 +457,7 @@ func (k Keeper) buildRequest(
 		serviceFee = k.GetPrice(ctx, consumer, binding)
 	}
 
-	request := types.NewCompactRequest(
+	return types.NewCompactRequest(
 		requestContextID,
 		batchCounter,
 		provider,
@@ -461,8 +465,6 @@ func (k Keeper) buildRequest(
 		ctx.BlockHeight(),
 		ctx.BlockHeight()+timeout,
 	)
-
-	return request
 }
 
 // SetCompactRequest sets the specified compact request
@@ -505,7 +507,7 @@ func (k Keeper) GetRequest(ctx sdk.Context, requestID tmbytes.HexBytes) (request
 		return request, false
 	}
 
-	request = types.NewRequest(
+	return types.NewRequest(
 		requestID,
 		requestContext.ServiceName,
 		compactRequest.Provider,
@@ -517,9 +519,7 @@ func (k Keeper) GetRequest(ctx sdk.Context, requestID tmbytes.HexBytes) (request
 		compactRequest.ExpirationHeight,
 		compactRequest.RequestContextId,
 		compactRequest.RequestContextBatchCounter,
-	)
-
-	return request, true
+	), true
 }
 
 // IterateRequests iterates through all compact requests
@@ -792,7 +792,9 @@ func (k Keeper) FilterServiceProviders(
 	timeout int64,
 	serviceFeeCap sdk.Coins,
 	consumer sdk.AccAddress,
-) ([]sdk.AccAddress, sdk.Coins) {
+) (
+	[]sdk.AccAddress, sdk.Coins,
+) {
 	var newProviders []sdk.AccAddress
 	var totalPrices sdk.Coins
 
@@ -816,13 +818,7 @@ func (k Keeper) FilterServiceProviders(
 
 // DeductServiceFees deducts the given service fees from the specified consumer
 func (k Keeper) DeductServiceFees(ctx sdk.Context, consumer sdk.AccAddress, serviceFees sdk.Coins) error {
-	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, consumer, types.RequestAccName, serviceFees)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return k.bankKeeper.SendCoinsFromAccountToModule(ctx, consumer, types.RequestAccName, serviceFees)
 }
 
 // GetPrice gets the current price for the specified consumer and binding
@@ -858,9 +854,13 @@ func (k Keeper) AddResponse(
 	ctx sdk.Context,
 	requestID tmbytes.HexBytes,
 	provider sdk.AccAddress,
-	result,
+	result string,
 	output string,
-) (request types.Request, response types.Response, err error) {
+) (
+	request types.Request,
+	response types.Response,
+	err error,
+) {
 	request, found := k.GetRequest(ctx, requestID)
 	if !found {
 		return request, response, sdkerrors.Wrap(types.ErrUnknownRequest, requestID.String())
@@ -877,18 +877,15 @@ func (k Keeper) AddResponse(
 	svcDef, _ := k.GetServiceDefinition(ctx, request.ServiceName)
 
 	if len(output) > 0 && types.ValidateResponseOutput(svcDef.Schemas, output) != nil {
-		err = k.Slash(ctx, requestID)
-		if err != nil {
+		if err = k.Slash(ctx, requestID); err != nil {
 			panic(err)
 		}
 
 		if err := k.RefundServiceFee(ctx, request.Consumer, request.ServiceFee); err != nil {
 			panic(err)
 		}
-	} else {
-		if err := k.AddEarnedFee(ctx, provider, request.ServiceFee); err != nil {
-			return request, response, err
-		}
+	} else if err := k.AddEarnedFee(ctx, provider, request.ServiceFee); err != nil {
+		return request, response, err
 	}
 
 	requestContextID := request.RequestContextId
@@ -922,9 +919,7 @@ func (k Keeper) Callback(ctx sdk.Context, requestContextID tmbytes.HexBytes) {
 		respCallback(ctx, requestContextID, outputs, nil)
 	} else {
 		respCallback(
-			ctx,
-			requestContextID,
-			outputs,
+			ctx, requestContextID, outputs,
 			fmt.Errorf(
 				"batch %d at least %d valid outputs required, but %d received",
 				requestContext.BatchCounter, requestContext.BatchResponseThreshold, len(outputs),
@@ -1054,7 +1049,7 @@ func (k Keeper) GetRequestVolume(
 
 // Slash slashes the provider from the specified request
 // Note: ensure that the request is valid
-func (k Keeper) Slash(ctx sdk.Context, requestID tmbytes.HexBytes) (err error) {
+func (k Keeper) Slash(ctx sdk.Context, requestID tmbytes.HexBytes) error {
 	request, _ := k.GetRequest(ctx, requestID)
 	binding, _ := k.GetServiceBinding(ctx, request.ServiceName, request.Provider)
 
@@ -1070,15 +1065,13 @@ func (k Keeper) Slash(ctx sdk.Context, requestID tmbytes.HexBytes) (err error) {
 		return sdkerrors.Wrapf(sdkerrors.ErrInsufficientFunds, "%s is less than %s", binding.Deposit.String(), slashedCoins.String())
 	}
 
-	err = k.bankKeeper.BurnCoins(ctx, types.DepositAccName, slashedCoins)
-	if err != nil {
+	if err := k.bankKeeper.BurnCoins(ctx, types.DepositAccName, slashedCoins); err != nil {
 		return err
 	}
 
 	binding.Deposit = deposit
 	if binding.Available {
 		minDeposit := k.getMinDeposit(ctx, k.GetPricing(ctx, binding.ServiceName, binding.Provider))
-
 		if !binding.Deposit.IsAllGTE(minDeposit) {
 			binding.Available = false
 			binding.DisabledTime = ctx.BlockHeader().Time
@@ -1127,7 +1120,6 @@ func (k Keeper) GetResponseCallback(moduleName string) (types.ResponseCallback, 
 	respCallback, ok := k.respCallbacks[moduleName]
 	if !ok {
 		return nil, sdkerrors.Wrapf(types.ErrCallbackNotRegistered, "%s not registered for module %s", "response callback", moduleName)
-
 	}
 
 	return respCallback, nil

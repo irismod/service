@@ -5,11 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/cosmos/cosmos-sdk/client/tx"
-
 	"github.com/gorilla/mux"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 
@@ -59,6 +58,7 @@ type BindServiceReq struct {
 	Deposit     string       `json:"deposit" yaml:"deposit"`
 	Pricing     string       `json:"pricing" yaml:"pricing"`
 	QoS         uint64       `json:"qos" yaml:"qos"`
+	Options     string       `json:"options" yaml:"options"`
 	Owner       string       `json:"owner" yaml:"owner"`
 }
 
@@ -68,6 +68,7 @@ type UpdateServiceBindingReq struct {
 	Deposit string       `json:"deposit" yaml:"deposit"`
 	Pricing string       `json:"pricing" yaml:"pricing"`
 	QoS     uint64       `json:"qos" yaml:"qos"`
+	Options string       `json:"options" yaml:"options"`
 	Owner   string       `json:"owner" yaml:"owner"`
 }
 
@@ -195,7 +196,6 @@ func bindServiceHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var provider sdk.AccAddress
-
 		if len(req.Provider) > 0 {
 			provider, err = sdk.AccAddressFromBech32(req.Provider)
 			if err != nil {
@@ -212,7 +212,7 @@ func bindServiceHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			return
 		}
 
-		msg := types.NewMsgBindService(req.ServiceName, provider, deposit, req.Pricing, req.QoS, owner)
+		msg := types.NewMsgBindService(req.ServiceName, provider, deposit, req.Pricing, req.QoS, req.Options, owner)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -266,7 +266,7 @@ func updateServiceBindingHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			}
 		}
 
-		msg := types.NewMsgUpdateServiceBinding(serviceName, provider, deposit, req.Pricing, req.QoS, owner)
+		msg := types.NewMsgUpdateServiceBinding(serviceName, provider, deposit, req.Pricing, req.QoS, req.Options, owner)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -338,7 +338,6 @@ func disableServiceBindingHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var owner sdk.AccAddress
-
 		if len(req.Owner) > 0 {
 			owner, err = sdk.AccAddressFromBech32(req.Owner)
 			if err != nil {
@@ -356,7 +355,6 @@ func disableServiceBindingHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		tx.WriteGeneratedTxResponse(cliCtx, w, req.BaseReq, msg)
-
 	}
 }
 
@@ -383,7 +381,6 @@ func enableServiceBindingHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var owner sdk.AccAddress
-
 		if len(req.Owner) > 0 {
 			owner, err = sdk.AccAddressFromBech32(req.Owner)
 			if err != nil {
@@ -410,7 +407,6 @@ func enableServiceBindingHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		tx.WriteGeneratedTxResponse(cliCtx, w, req.BaseReq, msg)
-
 	}
 }
 
@@ -437,7 +433,6 @@ func refundServiceDepositHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var owner sdk.AccAddress
-
 		if len(req.Owner) > 0 {
 			owner, err = sdk.AccAddressFromBech32(req.Owner)
 			if err != nil {
@@ -735,7 +730,6 @@ func withdrawEarnedFeesHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var owner sdk.AccAddress
-
 		if len(req.Owner) > 0 {
 			owner, err = sdk.AccAddressFromBech32(req.Owner)
 			if err != nil {

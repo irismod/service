@@ -1,22 +1,17 @@
 package keeper
 
 import (
+	gogotypes "github.com/gogo/protobuf/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	gogotypes "github.com/gogo/protobuf/types"
 
 	"github.com/irismod/service/types"
 )
 
 // RefundServiceFee refunds the service fee to the specified consumer
 func (k Keeper) RefundServiceFee(ctx sdk.Context, consumer sdk.AccAddress, serviceFee sdk.Coins) error {
-	err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.RequestAccName, consumer, serviceFee)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.RequestAccName, consumer, serviceFee)
 }
 
 // AddEarnedFee adds the earned fee for the given provider
@@ -29,8 +24,7 @@ func (k Keeper) AddEarnedFee(ctx sdk.Context, provider sdk.AccAddress, fee sdk.C
 		taxCoins = taxCoins.Add(sdk.NewCoin(coin.Denom, taxAmount))
 	}
 
-	err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.RequestAccName, k.feeCollectorName, taxCoins)
-	if err != nil {
+	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, types.RequestAccName, k.feeCollectorName, taxCoins); err != nil {
 		return err
 	}
 
@@ -169,12 +163,7 @@ func (k Keeper) WithdrawEarnedFees(ctx sdk.Context, owner, provider sdk.AccAddre
 
 	withdrawAddr := k.GetWithdrawAddress(ctx, owner)
 
-	err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.RequestAccName, withdrawAddr, withdrawFees)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.RequestAccName, withdrawAddr, withdrawFees)
 }
 
 // AllEarnedFeesIterator returns an iterator for all the earned fees
@@ -194,8 +183,9 @@ func (k Keeper) RefundEarnedFees(ctx sdk.Context) error {
 		var earnedFee sdk.Coin
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &earnedFee)
 
-		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.RequestAccName, provider, sdk.NewCoins(earnedFee))
-		if err != nil {
+		if err := k.bankKeeper.SendCoinsFromModuleToAccount(
+			ctx, types.RequestAccName, provider, sdk.NewCoins(earnedFee),
+		); err != nil {
 			return err
 		}
 	}
@@ -214,8 +204,9 @@ func (k Keeper) RefundServiceFees(ctx sdk.Context) error {
 
 		request, _ := k.GetRequest(ctx, requestID.Value)
 
-		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.RequestAccName, request.Consumer, request.ServiceFee)
-		if err != nil {
+		if err := k.bankKeeper.SendCoinsFromModuleToAccount(
+			ctx, types.RequestAccName, request.Consumer, request.ServiceFee,
+		); err != nil {
 			return err
 		}
 	}

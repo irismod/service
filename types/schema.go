@@ -53,15 +53,9 @@ func ValidateBindingPricing(pricing string) error {
 
 // ValidateRequestInput validates the request input against the input schema
 func ValidateRequestInput(schemas string, input string) error {
-	inputSchemaBz, err := parseInputSchema(schemas)
-	if err != nil {
-		return err
-	}
-
-	if err := validateDocument(inputSchemaBz, input); err != nil {
+	if err := validateDocument([]byte(InputSchema), input); err != nil {
 		return sdkerrors.Wrap(ErrInvalidRequestInput, err.Error())
 	}
-
 	return nil
 }
 
@@ -80,15 +74,9 @@ func ValidateResponseResult(result string) error {
 
 // ValidateResponseOutput validates the response output against the output schema
 func ValidateResponseOutput(schemas string, output string) error {
-	outputSchemaBz, err := parseOutputSchema(schemas)
-	if err != nil {
-		return err
-	}
-
-	if err := validateDocument(outputSchemaBz, output); err != nil {
+	if err := validateDocument([]byte(OutputSchema), output); err != nil {
 		return sdkerrors.Wrap(ErrInvalidResponseOutput, err.Error())
 	}
-
 	return nil
 }
 
@@ -98,8 +86,7 @@ func validateInputSchema(inputSchema map[string]interface{}) error {
 		return sdkerrors.Wrap(ErrInvalidSchemas, fmt.Sprintf("failed to marshal the input schema: %s", err))
 	}
 
-	_, err = gojsonschema.NewSchema(gojsonschema.NewBytesLoader(inputSchemaBz))
-	if err != nil {
+	if _, err = gojsonschema.NewSchema(gojsonschema.NewBytesLoader(inputSchemaBz)); err != nil {
 		return sdkerrors.Wrap(ErrInvalidSchemas, fmt.Sprintf("invalid input schema: %s", err))
 	}
 
@@ -112,8 +99,7 @@ func validateOutputSchema(outputSchema map[string]interface{}) error {
 		return sdkerrors.Wrap(ErrInvalidSchemas, fmt.Sprintf("failed to marshal the output schema: %s", err))
 	}
 
-	_, err = gojsonschema.NewSchema(gojsonschema.NewBytesLoader(outputSchemaBz))
-	if err != nil {
+	if _, err = gojsonschema.NewSchema(gojsonschema.NewBytesLoader(outputSchemaBz)); err != nil {
 		return sdkerrors.Wrap(ErrInvalidSchemas, fmt.Sprintf("invalid output schema: %s", err))
 	}
 
@@ -128,36 +114,6 @@ func parseServiceSchemas(schemas string) (ServiceSchemas, error) {
 	}
 
 	return svcSchemas, nil
-}
-
-// parseInputSchema parses the input schema from the given schemas
-func parseInputSchema(schemas string) ([]byte, error) {
-	svcSchemas, err := parseServiceSchemas(schemas)
-	if err != nil {
-		return nil, err
-	}
-
-	inputSchemaBz, err := json.Marshal(svcSchemas.Input)
-	if err != nil {
-		return nil, sdkerrors.Wrap(ErrInvalidSchemas, fmt.Sprintf("failed to marshal the input schema: %s", err))
-	}
-
-	return inputSchemaBz, nil
-}
-
-// parseOutputSchema parses the output schema from the given schemas
-func parseOutputSchema(schemas string) ([]byte, error) {
-	svcSchemas, err := parseServiceSchemas(schemas)
-	if err != nil {
-		return nil, err
-	}
-
-	outputSchemaBz, err := json.Marshal(svcSchemas.Output)
-	if err != nil {
-		return nil, sdkerrors.Wrap(ErrInvalidSchemas, fmt.Sprintf("failed to marshal the output schema: %s", err))
-	}
-
-	return outputSchemaBz, nil
 }
 
 // validateDocument wraps the gojsonschema validation
@@ -181,114 +137,164 @@ func validateDocument(schema []byte, document string) error {
 
 const (
 	// PricingSchema is the Pricing JSON Schema
-	PricingSchema = `{
-	"$schema": "http://json-schema.org/draft-04/schema#",
-	"title": "service-pricing",
-	"description": "Service Pricing Schema",
-	"type": "object",
-	"definitions": {
-	  "discount": {
-		"description": "promotion discount, greater than 0 and less than 1",
-		"type": "string",
-		"pattern": "^0\\.\\d*[1-9]$"
-	  },
-	  "promotion_by_time": {
-		"description": "promotion by time",
+	PricingSchema = `
+	{
+		"$schema": "http://json-schema.org/draft-04/schema#",
+		"title": "service-pricing",
+		"description": "Service Pricing Schema",
 		"type": "object",
+		"definitions": {
+			"discount": {
+				"description": "promotion discount, greater than 0 and less than 1",
+				"type": "string",
+				"pattern": "^0\\.\\d*[1-9]$"
+			},
+			"promotion_by_time": {
+				"description": "promotion by time",
+				"type": "object",
+				"properties": {
+					"start_time": {
+						"description": "starting time of the promotion",
+						"type": "string",
+						"format": "date-time"
+					},
+					"end_time": {
+						"description": "ending time of the promotion",
+						"type": "string",
+						"format": "date-time"
+					},
+					"discount": {
+						"$ref": "#/definitions/discount"
+					}
+				},
+				"additionalProperties": false,
+				"required": [
+					"start_time",
+					"end_time",
+					"discount"
+				]
+			},
+			"promotion_by_volume": {
+				"description": "promotion by volume",
+				"type": "object",
+				"properties": {
+					"volume": {
+						"description": "minimal volume for the promotion",
+						"type": "integer",
+						"minimum": 1
+					},
+					"discount": {
+						"$ref": "#/definitions/discount"
+					}
+				},
+				"additionalProperties": false,
+				"required": [
+					"volume",
+					"discount"
+				]
+			}
+		},
 		"properties": {
-		  "start_time": {
-			"description": "starting time of the promotion",
-			"type": "string",
-			"format": "date-time"
-		  },
-		  "end_time": {
-			"description": "ending time of the promotion",
-			"type": "string",
-			"format": "date-time"
-		  },
-		  "discount": {
-			"$ref": "#/definitions/discount"
-		  }
+			"price": {
+				"description": "base price in main unit, e.g. 0.5iris",
+				"type": "string",
+				"pattern": "^\\d+(\\.\\d+)?[a-z][a-z0-9]{2,7}$"
+			},
+			"promotions_by_time": {
+				"description": "promotions by time, in ascending order",
+				"type": "array",
+				"items": {
+					"$ref": "#/definitions/promotion_by_time"
+				},
+				"maxItems": 5,
+				"uniqueItems": true
+			},
+			"promotions_by_volume": {
+				"description": "promotions by volume, in ascending order",
+				"type": "array",
+				"items": {
+					"$ref": "#/definitions/promotion_by_volume"
+				},
+				"maxItems": 5,
+				"uniqueItems": true
+			}
 		},
 		"additionalProperties": false,
 		"required": [
-		  "start_time",
-		  "end_time",
-		  "discount"
+			"price"
 		]
-	  },
-	  "promotion_by_volume": {
-		"description": "promotion by volume",
-		"type": "object",
-		"properties": {
-		  "volume": {
-			"description": "minimal volume for the promotion",
-			"type": "integer",
-			"minimum": 1
-		  },
-		  "discount": {
-			"$ref": "#/definitions/discount"
-		  }
-		},
-		"additionalProperties": false,
-		"required": [
-		  "volume",
-		  "discount"
-		]
-	  }
-	},
-	"properties": {
-	  "price": {
-		"description": "base price in main unit, e.g. 0.5iris",
-		"type": "string",
-		"pattern": "^\\d+(\\.\\d+)?[a-z][a-z0-9]{2,7}$"
-	  },
-	  "promotions_by_time": {
-		"description": "promotions by time, in ascending order",
-		"type": "array",
-		"items": {
-		  "$ref": "#/definitions/promotion_by_time"
-		},
-		"maxItems": 5,
-		"uniqueItems": true
-	  },
-	  "promotions_by_volume": {
-		"description": "promotions by volume, in ascending order",
-		"type": "array",
-		"items": {
-		  "$ref": "#/definitions/promotion_by_volume"
-		},
-		"maxItems": 5,
-		"uniqueItems": true
-	  }
-	},
-	"additionalProperties": false,
-	"required": [
-	  "price"
-	]
-}`
+	}`
 
 	// ResultSchema is the JSON Schema for the response result
-	ResultSchema = `{
-	"$schema": "http://json-schema.org/draft-04/schema#",
-	"title": "service-result",
-	"description": "Service Result Schema",
-	"type": "object",
-	"properties": {
-	  "code": {
-		"description": "result code",
-		"type": "integer",
-		"enum": [200, 400, 500]
-	  },
-	  "message": {
-		"description": "result message",
-		"type": "string"
-	  }
-	},
-	"additionalProperties": false,
-	"required": [
-	  "code",
-	  "message"
-	]
-}`
+	ResultSchema = `
+	{
+		"$schema": "http://json-schema.org/draft-04/schema#",
+		"title": "service-result",
+		"description": "Service Result Schema",
+		"type": "object",
+		"properties": {
+			"code": {
+				"description": "result code",
+				"type": "integer",
+				"enum": [
+					200,
+					400,
+					500
+				]
+			},
+			"message": {
+				"description": "result message",
+				"type": "string"
+			}
+		},
+		"additionalProperties": false,
+		"required": [
+			"code",
+			"message"
+		]
+	}`
+
+	// InputSchema is the JSON Schema for the request input
+	InputSchema = `
+	{
+		"$schema": "http://json-schema.org/draft-04/schema#",
+		"title": "BioIdentify service input",
+		"description": "BioIdentify service input schema",
+		"type": "object",
+		"properties": {
+			"header": {
+				"description": "header",
+				"type": "object"
+			},
+			"body": {
+				"description": "body",
+				"type": "object"
+			}
+		},
+		"required": [
+			"header"
+		]
+	}`
+
+	// OutputSchema is the JSON Schema for the response output
+	OutputSchema = `
+	{
+		"$schema": "http://json-schema.org/draft-04/schema#",
+		"title": "BioIdentify service output",
+		"description": "BioIdentify service output schema",
+		"type": "object",
+		"properties": {
+			"header": {
+				"description": "header",
+				"type": "object"
+			},
+			"body": {
+				"description": "body",
+				"type": "object"
+			}
+		},
+		"required": [
+			"header",
+		]
+	}`
 )

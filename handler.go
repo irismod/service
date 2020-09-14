@@ -63,8 +63,10 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 }
 
 func handleMsgDefineService(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDefineService) (*sdk.Result, error) {
-	err := k.AddServiceDefinition(ctx, msg.Name, msg.Description, msg.Tags, msg.Author, msg.AuthorDescription, msg.Schemas)
-	if err != nil {
+	if err := k.AddServiceDefinition(
+		ctx, msg.Name, msg.Description, msg.Tags, msg.Author,
+		msg.AuthorDescription, msg.Schemas,
+	); err != nil {
 		return nil, err
 	}
 
@@ -80,8 +82,10 @@ func handleMsgDefineService(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDefi
 }
 
 func handleMsgBindService(ctx sdk.Context, k keeper.Keeper, msg *types.MsgBindService) (*sdk.Result, error) {
-	err := k.AddServiceBinding(ctx, msg.ServiceName, msg.Provider, msg.Deposit, msg.Pricing, msg.QoS, msg.Owner)
-	if err != nil {
+	if err := k.AddServiceBinding(
+		ctx, msg.ServiceName, msg.Provider, msg.Deposit,
+		msg.Pricing, msg.QoS, msg.Options, msg.Owner,
+	); err != nil {
 		return nil, err
 	}
 
@@ -97,8 +101,10 @@ func handleMsgBindService(ctx sdk.Context, k keeper.Keeper, msg *types.MsgBindSe
 }
 
 func handleMsgUpdateServiceBinding(ctx sdk.Context, k keeper.Keeper, msg *types.MsgUpdateServiceBinding) (*sdk.Result, error) {
-	err := k.UpdateServiceBinding(ctx, msg.ServiceName, msg.Provider, msg.Deposit, msg.Pricing, msg.QoS, msg.Owner)
-	if err != nil {
+	if err := k.UpdateServiceBinding(
+		ctx, msg.ServiceName, msg.Provider, msg.Deposit,
+		msg.Pricing, msg.QoS, msg.Options, msg.Owner,
+	); err != nil {
 		return nil, err
 	}
 
@@ -128,8 +134,7 @@ func handleMsgSetWithdrawAddress(ctx sdk.Context, k keeper.Keeper, msg *types.Ms
 }
 
 func handleMsgDisableServiceBinding(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDisableServiceBinding) (*sdk.Result, error) {
-	err := k.DisableServiceBinding(ctx, msg.ServiceName, msg.Provider, msg.Owner)
-	if err != nil {
+	if err := k.DisableServiceBinding(ctx, msg.ServiceName, msg.Provider, msg.Owner); err != nil {
 		return nil, err
 	}
 
@@ -145,8 +150,7 @@ func handleMsgDisableServiceBinding(ctx sdk.Context, k keeper.Keeper, msg *types
 }
 
 func handleMsgEnableServiceBinding(ctx sdk.Context, k keeper.Keeper, msg *types.MsgEnableServiceBinding) (*sdk.Result, error) {
-	err := k.EnableServiceBinding(ctx, msg.ServiceName, msg.Provider, msg.Deposit, msg.Owner)
-	if err != nil {
+	if err := k.EnableServiceBinding(ctx, msg.ServiceName, msg.Provider, msg.Deposit, msg.Owner); err != nil {
 		return nil, err
 	}
 
@@ -162,8 +166,7 @@ func handleMsgEnableServiceBinding(ctx sdk.Context, k keeper.Keeper, msg *types.
 }
 
 func handleMsgRefundServiceDeposit(ctx sdk.Context, k keeper.Keeper, msg *types.MsgRefundServiceDeposit) (*sdk.Result, error) {
-	err := k.RefundDeposit(ctx, msg.ServiceName, msg.Provider, msg.Owner)
-	if err != nil {
+	if err := k.RefundDeposit(ctx, msg.ServiceName, msg.Provider, msg.Owner); err != nil {
 		return nil, err
 	}
 
@@ -181,8 +184,11 @@ func handleMsgRefundServiceDeposit(ctx sdk.Context, k keeper.Keeper, msg *types.
 // handleMsgCallService handles MsgCallService
 func handleMsgCallService(ctx sdk.Context, k keeper.Keeper, msg *types.MsgCallService) (*sdk.Result, error) {
 	reqContextID, err := k.CreateRequestContext(
-		ctx, msg.ServiceName, msg.Providers, msg.Consumer, msg.Input, msg.ServiceFeeCap, msg.Timeout,
-		msg.SuperMode, msg.Repeated, msg.RepeatedFrequency, msg.RepeatedTotal, types.RUNNING, 0, "")
+		ctx, msg.ServiceName, msg.Providers, msg.Consumer,
+		msg.Input, msg.ServiceFeeCap, msg.Timeout,
+		msg.SuperMode, msg.Repeated, msg.RepeatedFrequency,
+		msg.RepeatedTotal, types.RUNNING, 0, "",
+	)
 	if err != nil {
 		return nil, err
 	}

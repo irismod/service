@@ -136,6 +136,7 @@ func NewMsgBindService(
 	deposit sdk.Coins,
 	pricing string,
 	qos uint64,
+	options string,
 	owner sdk.AccAddress,
 ) *MsgBindService {
 	return &MsgBindService{
@@ -144,6 +145,7 @@ func NewMsgBindService(
 		Deposit:     deposit,
 		Pricing:     pricing,
 		QoS:         qos,
+		Options:     options,
 		Owner:       owner,
 	}
 }
@@ -186,6 +188,10 @@ func (msg MsgBindService) ValidateBasic() error {
 		return err
 	}
 
+	if err := ValidateOptions(msg.Options); err != nil {
+		return err
+	}
+
 	return ValidateBindingPricing(msg.Pricing)
 }
 
@@ -203,6 +209,7 @@ func NewMsgUpdateServiceBinding(
 	deposit sdk.Coins,
 	pricing string,
 	qos uint64,
+	options string,
 	owner sdk.AccAddress,
 ) *MsgUpdateServiceBinding {
 	return &MsgUpdateServiceBinding{
@@ -211,6 +218,7 @@ func NewMsgUpdateServiceBinding(
 		Deposit:     deposit,
 		Pricing:     pricing,
 		QoS:         qos,
+		Options:     options,
 		Owner:       owner,
 	}
 }
@@ -249,6 +257,10 @@ func (msg MsgUpdateServiceBinding) ValidateBasic() error {
 		if err := ValidateServiceDeposit(msg.Deposit); err != nil {
 			return err
 		}
+	}
+
+	if err := ValidateOptions(msg.Options); err != nil {
+		return err
 	}
 
 	if len(msg.Pricing) != 0 {
@@ -892,6 +904,14 @@ func ValidateServiceDeposit(deposit sdk.Coins) error {
 func ValidateQoS(qos uint64) error {
 	if qos == 0 {
 		return sdkerrors.Wrap(ErrInvalidQoS, "qos must be greater than 0")
+	}
+
+	return nil
+}
+
+func ValidateOptions(options string) error {
+	if !json.Valid([]byte(options)) {
+		return sdkerrors.Wrap(ErrInvalidOptions, "options is not valid JSON")
 	}
 
 	return nil

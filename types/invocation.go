@@ -75,11 +75,7 @@ func (rc RequestContext) Validate() error {
 		return err
 	}
 
-	if err := ValidateServiceFeeCap(rc.ServiceFeeCap); err != nil {
-		return err
-	}
-
-	return nil
+	return ValidateServiceFeeCap(rc.ServiceFeeCap)
 }
 
 // Empty returns true if empty

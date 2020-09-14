@@ -74,12 +74,7 @@ func GetServiceBindingKey(serviceName string, provider sdk.AccAddress) []byte {
 // GetOwnerServiceBindingKey gets the key for the service binding with the specified owner
 // VALUE: []byte{}
 func GetOwnerServiceBindingKey(owner sdk.AccAddress, serviceName string, provider sdk.AccAddress) []byte {
-	return append(append(append(append(
-		OwnerServiceBindingKey,
-		owner.Bytes()...),
-		[]byte(serviceName)...),
-		EmptyByte...),
-		provider.Bytes()...)
+	return append(append(append(append(OwnerServiceBindingKey, owner.Bytes()...), []byte(serviceName)...), EmptyByte...), provider.Bytes()...)
 }
 
 // GetOwnerKey gets the key for the specified provider

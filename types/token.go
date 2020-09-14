@@ -41,6 +41,7 @@ func (token MockToken) ToMainCoin(coin sdk.Coin) (sdk.DecCoin, error) {
 
 	// dest amount = src amount / 10^(scale)
 	amount := sdk.NewDecFromInt(coin.Amount).Quo(precisionDec)
+
 	return sdk.NewDecCoinFromDec(token.Symbol, amount), nil
 }
 
@@ -62,6 +63,7 @@ func (token MockToken) ToMinCoin(coin sdk.DecCoin) (sdk.Coin, error) {
 
 	// dest amount = src amount * 10^(dest scale)
 	amount := coin.Amount.Mul(precisionDec)
+
 	return sdk.NewCoin(token.MinUnit, amount.TruncateInt()), nil
 }
 

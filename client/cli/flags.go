@@ -17,6 +17,7 @@ const (
 	FlagDeposit           = "deposit"
 	FlagPricing           = "pricing"
 	FlagQoS               = "qos"
+	FlagOptions           = "options"
 	FlagProviders         = "providers"
 	FlagServiceFeeCap     = "service-fee-cap"
 	FlagTimeout           = "timeout"
@@ -53,10 +54,12 @@ func init() {
 	FsBindService.String(FlagDeposit, "", "deposit of the binding")
 	FsBindService.String(FlagPricing, "", "pricing content or file path, which is an instance of the Service Pricing schema")
 	FsBindService.Uint64(FlagQoS, 0, "quality of service, in terms of minimum response time")
+	FsBindService.String(FlagOptions, "", "non-functional requirements options")
 
 	FsUpdateServiceBinding.String(FlagDeposit, "", "added deposit for the binding")
 	FsUpdateServiceBinding.String(FlagPricing, "", "pricing content or file path, which is an instance of the Service Pricing schema")
 	FsUpdateServiceBinding.Uint64(FlagQoS, 0, "quality of service, in terms of minimum response time, not updated if set to 0")
+	FsUpdateServiceBinding.String(FlagOptions, "", "non-functional requirements options")
 
 	FsEnableServiceBinding.String(FlagDeposit, "", "added deposit for enabling the binding")
 

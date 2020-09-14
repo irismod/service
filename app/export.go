@@ -19,8 +19,9 @@ import (
 // file.
 func (app *SimApp) ExportAppStateAndValidators(
 	forZeroHeight bool, jailAllowedAddrs []string,
-) (appState json.RawMessage, validators []tmtypes.GenesisValidator, cp *abci.ConsensusParams, err error) {
-
+) (
+	appState json.RawMessage, validators []tmtypes.GenesisValidator, cp *abci.ConsensusParams, err error,
+) {
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
 

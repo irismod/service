@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
@@ -320,8 +321,9 @@ func CheckBalance(t *testing.T, app *SimApp, addr sdk.AccAddress, balances sdk.C
 func SignCheckDeliver(
 	t *testing.T, txGen client.TxConfig, app *bam.BaseApp, header tmproto.Header, msgs []sdk.Msg,
 	chainID string, accNums, accSeqs []uint64, expSimPass, expPass bool, priv ...crypto.PrivKey,
-) (sdk.GasInfo, *sdk.Result, error) {
-
+) (
+	sdk.GasInfo, *sdk.Result, error,
+) {
 	tx, err := helpers.GenTx(
 		txGen,
 		msgs,
@@ -368,7 +370,12 @@ func SignCheckDeliver(
 // GenSequenceOfTxs generates a set of signed transactions of messages, such
 // that they differ only by having the sequence numbers incremented between
 // every transaction.
-func GenSequenceOfTxs(txGen client.TxConfig, msgs []sdk.Msg, accNums []uint64, initSeqNums []uint64, numToGenerate int, priv ...crypto.PrivKey) ([]sdk.Tx, error) {
+func GenSequenceOfTxs(
+	txGen client.TxConfig, msgs []sdk.Msg, accNums []uint64,
+	initSeqNums []uint64, numToGenerate int, priv ...crypto.PrivKey,
+) (
+	[]sdk.Tx, error,
+) {
 	txs := make([]sdk.Tx, numToGenerate)
 	var err error
 	for i := 0; i < numToGenerate; i++ {

@@ -7,6 +7,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+var (
+	amino     = codec.New()
+	ModuleCdc = codec.NewAminoCodec(amino)
+)
+
+func init() {
+	RegisterCodec(amino)
+	cryptocodec.RegisterCrypto(amino)
+}
+
 // RegisterCodec registers concrete types on codec
 func RegisterCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgDefineService{}, "irismod/service/MsgDefineService", nil)
@@ -43,15 +53,4 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgUpdateRequestContext{},
 		&MsgWithdrawEarnedFees{},
 	)
-}
-
-var (
-	amino = codec.New()
-
-	ModuleCdc = codec.NewAminoCodec(amino)
-)
-
-func init() {
-	RegisterCodec(amino)
-	cryptocodec.RegisterCrypto(amino)
 }

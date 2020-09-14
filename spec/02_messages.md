@@ -11,12 +11,12 @@ message.
 
 ```go
 type MsgDefineService struct {
-  Name              string
-  Description       string
-  Tags              []string
-  Author            sdk.AccAddress
-  AuthorDescription string
-  Schemas           string
+    Name              string
+    Description       string
+    Tags              []string
+    Author            sdk.AccAddress
+    AuthorDescription string
+    Schemas           string
 }
 ```
 
@@ -43,7 +43,7 @@ This message is expected to fail if:
 
 ## Service Binding
 
-Any user who wants to provide a service can create a service binding via `MsgBindService`. Later, the service binding can be updated via `MsgUpdateServiceBinding`, diabled via `MsgDisableServiceBinding`, and enabled via `MsgEnableServiceBinding`. 
+Any user who wants to provide a service can create a service binding via `MsgBindService`. Later, the service binding can be updated via `MsgUpdateServiceBinding`, diabled via `MsgDisableServiceBinding`, and enabled via `MsgEnableServiceBinding`.
 
 The owner can refund deposit from an unavailable service binding after a period of time since disabled. The operation is via `MsgRefundServiceDeposit`
 
@@ -51,12 +51,13 @@ An owner can set an address to withdraw fees earned by its providers. The corres
 
 ```go
 type MsgBindService struct {
-  ServiceName string
-  Provider    sdk.AccAddress
-  Deposit     sdk.Coins
-  Pricing     string
-  QoS         uint64
-  Owner       sdk.AccAddress
+    ServiceName string
+    Provider    sdk.AccAddress
+    Deposit     sdk.Coins
+    Pricing     string
+    QoS         uint64
+    Options     string
+    Owner       sdk.AccAddress
 }
 ```
 
@@ -73,17 +74,19 @@ This message is expected to fail if:
 - `Deposit` is invalid coins or not positive
 - `Pricing` does not conform the `Pricing Schema`
 - `QoS` is equal to 0 or greater than the system parameter `MaxRequestTimeout`
+- `Options` is non-functional options
 - the service definition with the `ServiceName` does not exist
 - the service binding with the `ServiceName` and `Provider` already exists
 
 ```go
 type MsgUpdateServiceBinding struct {
-  ServiceName string
-  Provider    sdk.AccAddress
-  Deposit     sdk.Coins
-  Pricing     string
-  QoS         uint64
-  Owner       sdk.AccAddress
+    ServiceName string
+    Provider    sdk.AccAddress
+    Deposit     sdk.Coins
+    Pricing     string
+    QoS         uint64
+    Options     string
+    Owner       sdk.AccAddress
 }
 ```
 
@@ -106,9 +109,9 @@ This message is expected to fail if:
 
 ```go
 type MsgDisableServiceBinding struct {
-  ServiceName string
-  Provider    sdk.AccAddress
-  Owner       sdk.AccAddress
+    ServiceName string
+    Provider    sdk.AccAddress
+    Owner       sdk.AccAddress
 }
 ```
 
@@ -128,10 +131,10 @@ This message is expected to fail if:
 
 ```go
 type MsgEnableServiceBinding struct {
-  ServiceName string
-  Provider    sdk.AccAddress
-  Deposit     sdk.Coins
-  Owner       sdk.AccAddress
+    ServiceName string
+    Provider    sdk.AccAddress
+    Deposit     sdk.Coins
+    Owner       sdk.AccAddress
 }
 ```
 
@@ -153,9 +156,9 @@ This message is expected to fail if:
 
 ```go
 type MsgRefundServiceDeposit struct {
-  ServiceName string
-  Provider    sdk.AccAddress
-  Owner       sdk.AccAddress
+    ServiceName string
+    Provider    sdk.AccAddress
+    Owner       sdk.AccAddress
 }
 ```
 
@@ -184,8 +187,8 @@ This message is expected to fail if:
 
 ```go
 type MsgSetWithdrawAddress struct {
-  Owner           sdk.AccAddress
-  WithdrawAddress sdk.AccAddress
+    Owner           sdk.AccAddress
+    WithdrawAddress sdk.AccAddress
 }
 ```
 
@@ -203,16 +206,16 @@ A consumer can initiate a service invocation via `MsgCallService`, and the targe
 
 ```go
 type MsgCallService struct {
-  ServiceName       string
-  Providers         []sdk.AccAddress
-  Consumer          sdk.AccAddress
-  Input             string
-  ServiceFeeCap     sdk.Coins
-  Timeout           int64
-  SuperMode         bool
-  Repeated          bool
-  RepeatedFrequency uint64
-  RepeatedTotal     int64
+    ServiceName       string
+    Providers         []sdk.AccAddress
+    Consumer          sdk.AccAddress
+    Input             string
+    ServiceFeeCap     sdk.Coins
+    Timeout           int64
+    SuperMode         bool
+    Repeated          bool
+    RepeatedFrequency uint64
+    RepeatedTotal     int64
 }
 ```
 
@@ -235,10 +238,10 @@ This message is expected to fail if:
 
 ```go
 type MsgRespondService struct {
-  RequestID tmbytes.HexBytes `json:"request_id"`
-  Provider  sdk.AccAddress   `json:"provider"`
-  Result    string           `json:"result"`
-  Output    string           `json:"output"`
+    RequestID tmbytes.HexBytes `json:"request_id"`
+    Provider  sdk.AccAddress   `json:"provider"`
+    Result    string           `json:"result"`
+    Output    string           `json:"output"`
 }
 ```
 
@@ -258,13 +261,13 @@ This message is expected to fail if:
 
 ```go
 type MsgUpdateRequestContext struct {
-  RequestContextID  tmbytes.HexBytes
-  Providers         []sdk.AccAddress
-  ServiceFeeCap     sdk.Coins
-  Timeout           int64
-  RepeatedFrequency uint64
-  RepeatedTotal     int64
-  Consumer          sdk.AccAddress
+    RequestContextID  tmbytes.HexBytes
+    Providers         []sdk.AccAddress
+    ServiceFeeCap     sdk.Coins
+    Timeout           int64
+    RepeatedFrequency uint64
+    RepeatedTotal     int64
+    Consumer          sdk.AccAddress
 }
 ```
 
@@ -288,8 +291,8 @@ This message is expected to fail if:
 
 ```go
 type MsgPauseRequestContext struct {
-  RequestContextID tmbytes.HexBytes
-  Consumer         sdk.AccAddress
+    RequestContextID tmbytes.HexBytes
+    Consumer         sdk.AccAddress
 }
 ```
 
@@ -305,8 +308,8 @@ This message is expected to fail if:
 
 ```go
 type MsgStartRequestContext struct {
-  RequestContextID tmbytes.HexBytes
-  Consumer         sdk.AccAddress
+    RequestContextID tmbytes.HexBytes
+    Consumer         sdk.AccAddress
 }
 ```
 
@@ -322,8 +325,8 @@ This message is expected to fail if:
 
 ```go
 type MsgKillRequestContext struct {
-  RequestContextID tmbytes.HexBytes
-  Consumer         sdk.AccAddress
+    RequestContextID tmbytes.HexBytes
+    Consumer         sdk.AccAddress
 }
 ```
 

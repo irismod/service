@@ -8,13 +8,14 @@ import (
 	"io/ioutil"
 	"strings"
 
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	"github.com/irismod/service/types"
 )
@@ -55,12 +56,16 @@ func GetCmdDefineService() *cobra.Command {
 		Use:   "define",
 		Short: "Define a new service",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Define a new service based on the given params.
-
-Example:
-$ %s tx service define --name=<service name> --description=<service description> --author-description=<author description> 
---tags=<tag1,tag2,...> --schemas=<schemas content or path/to/schemas.json> --from mykey
-`,
+			fmt.Sprintf(
+				"Define a new service based on the given params.\n\n"+
+					"Example:\n"+
+					"$ %s tx service define "+
+					"--name=<service name> "+
+					"--description=<service description> "+
+					"--author-description=<author description> "+
+					"--tags=<tag1,tag2,...> "+
+					"--schemas=<schemas content or path/to/schemas.json> "+
+					"--from mykey\n",
 				version.AppName,
 			),
 		),
@@ -72,7 +77,6 @@ $ %s tx service define --name=<service name> --description=<service description>
 			}
 
 			author := clientCtx.GetFromAddress()
-
 			name := viper.GetString(FlagName)
 			description := viper.GetString(FlagDescription)
 			authorDescription := viper.GetString(FlagAuthorDescription)
@@ -123,12 +127,16 @@ func GetCmdBindService() *cobra.Command {
 		Use:   "bind",
 		Short: "Bind an existing service definition",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Bind an existing service definition.
-
-Example:
-$ %s tx service bind --service-name=<service-name> --deposit=1stake 
---pricing=<pricing content or path/to/pricing.json> --qos=50 --from mykey
-`,
+			fmt.Sprintf(
+				"Bind an existing service definition.\n\n"+
+					"Example:\n"+
+					"$ %s tx service bind "+
+					"--service-name=<service-name> "+
+					"--deposit=1stake "+
+					"--pricing=<pricing content or path/to/pricing.json> "+
+					"--qos=50 "+
+					"--options=<non-functional requirements content or path/to/options.json>"+
+					"--from mykey\n",
 				version.AppName,
 			),
 		),
@@ -140,10 +148,9 @@ $ %s tx service bind --service-name=<service-name> --deposit=1stake
 			}
 
 			owner := clientCtx.GetFromAddress()
-
 			var provider sdk.AccAddress
-
 			providerStr := viper.GetString(FlagProvider)
+
 			if len(providerStr) > 0 {
 				provider, err = sdk.AccAddressFromBech32(providerStr)
 				if err != nil {
@@ -155,6 +162,19 @@ $ %s tx service bind --service-name=<service-name> --deposit=1stake
 
 			serviceName := viper.GetString(FlagServiceName)
 			qos := uint64(viper.GetInt64(FlagQoS))
+			options := viper.GetString(FlagOptions)
+			if !json.Valid([]byte(options)) {
+				optionsContent, err := ioutil.ReadFile(options)
+				if err != nil {
+					return fmt.Errorf("invalid options: neither JSON input nor path to .json file were provided")
+				}
+
+				if !json.Valid(optionsContent) {
+					return fmt.Errorf("invalid options: .json file content is invalid JSON")
+				}
+
+				options = string(optionsContent)
+			}
 
 			depositStr := viper.GetString(FlagDeposit)
 			deposit, err := sdk.ParseCoins(depositStr)
@@ -163,7 +183,6 @@ $ %s tx service bind --service-name=<service-name> --deposit=1stake
 			}
 
 			pricing := viper.GetString(FlagPricing)
-
 			if !json.Valid([]byte(pricing)) {
 				pricingContent, err := ioutil.ReadFile(pricing)
 				if err != nil {
@@ -183,8 +202,7 @@ $ %s tx service bind --service-name=<service-name> --deposit=1stake
 			}
 
 			pricing = buf.String()
-
-			msg := types.NewMsgBindService(serviceName, provider, deposit, pricing, qos, owner)
+			msg := types.NewMsgBindService(serviceName, provider, deposit, pricing, qos, options, owner)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -198,6 +216,7 @@ $ %s tx service bind --service-name=<service-name> --deposit=1stake
 	_ = cmd.MarkFlagRequired(FlagDeposit)
 	_ = cmd.MarkFlagRequired(FlagPricing)
 	_ = cmd.MarkFlagRequired(FlagQoS)
+	_ = cmd.MarkFlagRequired(FlagOptions)
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -209,12 +228,15 @@ func GetCmdUpdateServiceBinding() *cobra.Command {
 		Use:   "update-binding [service-name] [provider-address]",
 		Short: "Update an existing service binding",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Update an existing service binding.
-
-Example:
-$ %s tx service update-binding <service-name> <provider-address> --deposit=1stake 
---pricing=<pricing content or path/to/pricing.json> --qos=50 --from mykey
-`,
+			fmt.Sprintf(
+				"Update an existing service binding.\n\n"+
+					"Example:\n"+
+					"$ %s tx service update-binding <service-name> <provider-address> "+
+					"--deposit=1stake "+
+					"--pricing=<pricing content or path/to/pricing.json> "+
+					"--qos=50 "+
+					"--options=<non-functional requirements content or path/to/options.json>"+
+					"--from mykey\n",
 				version.AppName,
 			),
 		),
@@ -227,9 +249,7 @@ $ %s tx service update-binding <service-name> <provider-address> --deposit=1stak
 			}
 
 			owner := clientCtx.GetFromAddress()
-
 			var provider sdk.AccAddress
-
 			if len(args) > 1 {
 				provider, err = sdk.AccAddressFromBech32(args[1])
 				if err != nil {
@@ -240,7 +260,6 @@ $ %s tx service update-binding <service-name> <provider-address> --deposit=1stak
 			}
 
 			var deposit sdk.Coins
-
 			depositStr := viper.GetString(FlagDeposit)
 			if len(depositStr) != 0 {
 				deposit, err = sdk.ParseCoins(depositStr)
@@ -250,7 +269,6 @@ $ %s tx service update-binding <service-name> <provider-address> --deposit=1stak
 			}
 
 			pricing := viper.GetString(FlagPricing)
-
 			if len(pricing) != 0 {
 				if !json.Valid([]byte(pricing)) {
 					pricingContent, err := ioutil.ReadFile(pricing)
@@ -274,8 +292,21 @@ $ %s tx service update-binding <service-name> <provider-address> --deposit=1stak
 			}
 
 			qos := uint64(viper.GetInt64(FlagQoS))
+			options := viper.GetString(FlagOptions)
+			if !json.Valid([]byte(options)) {
+				optionsContent, err := ioutil.ReadFile(options)
+				if err != nil {
+					return fmt.Errorf("invalid options: neither JSON input nor path to .json file were provided")
+				}
 
-			msg := types.NewMsgUpdateServiceBinding(args[0], provider, deposit, pricing, qos, owner)
+				if !json.Valid(optionsContent) {
+					return fmt.Errorf("invalid options: .json file content is invalid JSON")
+				}
+
+				options = string(optionsContent)
+			}
+
+			msg := types.NewMsgUpdateServiceBinding(args[0], provider, deposit, pricing, qos, options, owner)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -296,11 +327,10 @@ func GetCmdSetWithdrawAddr() *cobra.Command {
 		Use:   "set-withdraw-addr [withdrawal-address]",
 		Short: "Set a withdrawal address for an owner",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Set a withdrawal address for an owner.
-
-Example:
-$ %s tx service set-withdraw-addr <withdrawal-address> --from mykey
-`,
+			fmt.Sprintf(
+				"Set a withdrawal address for an owner.\n\n"+
+					"Example:\n"+
+					"$ %s tx service set-withdraw-addr <withdrawal-address> --from mykey\n",
 				version.AppName,
 			),
 		),
@@ -313,7 +343,6 @@ $ %s tx service set-withdraw-addr <withdrawal-address> --from mykey
 			}
 
 			owner := clientCtx.GetFromAddress()
-
 			withdrawAddr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
@@ -338,11 +367,10 @@ func GetCmdDisableServiceBinding() *cobra.Command {
 		Use:   "disable [service-name] [provider-address]",
 		Short: "Disable an available service binding",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Disable an available service binding.
-
-Example:
-$ %s tx service disable <service-name> <provider-address> --from mykey
-`,
+			fmt.Sprintf(
+				"Disable an available service binding.\n\n"+
+					"Example:\n"+
+					"$ %s tx service disable <service-name> <provider-address> --from mykey\n",
 				version.AppName,
 			),
 		),
@@ -355,9 +383,7 @@ $ %s tx service disable <service-name> <provider-address> --from mykey
 			}
 
 			owner := clientCtx.GetFromAddress()
-
 			var provider sdk.AccAddress
-
 			if len(args) > 1 {
 				provider, err = sdk.AccAddressFromBech32(args[1])
 				if err != nil {
@@ -386,11 +412,10 @@ func GetCmdEnableServiceBinding() *cobra.Command {
 		Use:   "enable [service-name] [provider-address]",
 		Short: "Enable an unavailable service binding",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Enable an unavailable service binding.
-
-Example:
-$ %s tx service enable <service-name> <provider-address> --deposit=1stake --from mykey
-`,
+			fmt.Sprintf(
+				"Enable an unavailable service binding.\n\n"+
+					"Example:\n"+
+					"$ %s tx service enable <service-name> <provider-address> --deposit=1stake --from mykey\n",
 				version.AppName,
 			),
 		),
@@ -403,9 +428,7 @@ $ %s tx service enable <service-name> <provider-address> --deposit=1stake --from
 			}
 
 			owner := clientCtx.GetFromAddress()
-
 			var provider sdk.AccAddress
-
 			if len(args) > 1 {
 				provider, err = sdk.AccAddressFromBech32(args[1])
 				if err != nil {
@@ -446,11 +469,10 @@ func GetCmdRefundServiceDeposit() *cobra.Command {
 		Use:   "refund-deposit [service-name] [provider-address]",
 		Short: "Refund all deposit from a service binding",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Refund all deposit from a service binding.
-
-Example:
-$ %s tx service refund-deposit <service-name> <provider-address> --from mykey
-`,
+			fmt.Sprintf(
+				"Refund all deposit from a service binding.\n\n"+
+					"Example:\n"+
+					"$ %s tx service refund-deposit <service-name> <provider-address> --from mykey\n",
 				version.AppName,
 			),
 		),
@@ -463,9 +485,7 @@ $ %s tx service refund-deposit <service-name> <provider-address> --from mykey
 			}
 
 			owner := clientCtx.GetFromAddress()
-
 			var provider sdk.AccAddress
-
 			if len(args) > 1 {
 				provider, err = sdk.AccAddressFromBech32(args[1])
 				if err != nil {
@@ -494,13 +514,19 @@ func GetCmdCallService() *cobra.Command {
 		Use:   "call",
 		Short: "Initiate a service call",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Initiate a service call.
-
-Example:
-$ %s tx service call --service-name=<service-name> --providers=<provider list> 
---service-fee-cap=1stake --data=<input content or path/to/input.json> --timeout=100 
---repeated --frequency=150 --total=100 --from mykey
-`,
+			fmt.Sprintf(
+				"Initiate a service call.\n\n"+
+					"Example:\n"+
+					"$ %s tx service call "+
+					"--service-name=<service-name> "+
+					"--providers=<provider list> "+
+					"--service-fee-cap=1stake "+
+					"--data=<input content or path/to/input.json> "+
+					"--timeout=100 "+
+					"--repeated "+
+					"--frequency=150 "+
+					"--total=100 "+
+					"--from mykey\n",
 				version.AppName,
 			),
 		),
@@ -512,7 +538,6 @@ $ %s tx service call --service-name=<service-name> --providers=<provider list>
 			}
 
 			consumer := clientCtx.GetFromAddress()
-
 			serviceName := viper.GetString(FlagServiceName)
 
 			var providers []sdk.AccAddress
@@ -594,12 +619,14 @@ func GetCmdRespondService() *cobra.Command {
 		Use:   "respond",
 		Short: "Respond to a service request",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Respond to an active service request.
-
-Example:
-$ %s tx service respond --request-id=<request-id> --result=<result content or path/to/result.json>
---data=<output content or path/to/output.json> --from mykey
-`,
+			fmt.Sprintf(
+				"Respond to an active service request."+
+					"Example:"+
+					"$ %s tx service respond "+
+					"--request-id=<request-id> "+
+					"--result=<result content or path/to/result.json>"+
+					"--data=<output content or path/to/output.json> "+
+					"--from mykey\n",
 				version.AppName,
 			),
 		),
@@ -688,11 +715,10 @@ func GetCmdPauseRequestContext() *cobra.Command {
 		Use:   "pause [request-context-id]",
 		Short: "Pause a running request context",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Pause a running request context.
-
-Example:
-$ %s tx service pause <request-context-id> --from mykey
-`,
+			fmt.Sprintf(
+				"Pause a running request context.\n\n"+
+					"Example:\n"+
+					"$ %s tx service pause <request-context-id> --from mykey\n",
 				version.AppName,
 			),
 		),
@@ -730,11 +756,10 @@ func GetCmdStartRequestContext() *cobra.Command {
 		Use:   "start [request-context-id]",
 		Short: "Start a paused request context",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Start a paused request context.
-
-Example:
-$ %s tx service start <request-context-id> --from mykey
-`,
+			fmt.Sprintf(
+				"Start a paused request context.\n\n"+
+					"Example:\n"+
+					"$ %s tx service start <request-context-id> --from mykey\n",
 				version.AppName,
 			),
 		),
@@ -772,11 +797,10 @@ func GetCmdKillRequestContext() *cobra.Command {
 		Use:   "kill [request-context-id]",
 		Short: "Terminate a request context",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Terminate a request context.
-
-Example:
-$ %s tx service kill <request-context-id> --from mykey
-`,
+			fmt.Sprintf(
+				"Terminate a request context.\n\n"+
+					"Example:\n"+
+					"$ %s tx service kill <request-context-id> --from mykey\n",
 				version.AppName,
 			),
 		),
@@ -814,12 +838,16 @@ func GetCmdUpdateRequestContext() *cobra.Command {
 		Use:   "update [request-context-id]",
 		Short: "Update a request context",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Update a request context.
-
-Example:
-$ %s tx service update <request-context-id> --providers=<new providers> 
---service-fee-cap=2iris --timeout=0 --frequency=200 --total=200 --from mykey
-`,
+			fmt.Sprintf(
+				"Update a request context.\n\n"+
+					"Example:\n"+
+					"$ %s tx service update <request-context-id> "+
+					"--providers=<new providers> "+
+					"--service-fee-cap=2iris "+
+					"--timeout=0 "+
+					"--frequency=200 "+
+					"--total=200 "+
+					"--from mykey\n",
 				version.AppName,
 			),
 		),
@@ -851,7 +879,6 @@ $ %s tx service update <request-context-id> --providers=<new providers>
 			}
 
 			var serviceFeeCap sdk.Coins
-
 			serviceFeeCapStr := viper.GetString(FlagServiceFeeCap)
 			if len(serviceFeeCapStr) != 0 {
 				serviceFeeCap, err = sdk.ParseCoins(serviceFeeCapStr)
@@ -888,12 +915,10 @@ func GetCmdWithdrawEarnedFees() *cobra.Command {
 		Use:   "withdraw-fees [provider-address]",
 		Short: "Withdraw the earned fees of a provider or owner",
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Withdraw the earned fees of the specified provider, 
-for all providers of the owner if the provider not given.
-
-Example:
-$ %s tx service withdraw-fees <provider-address> --from mykey
-`,
+			fmt.Sprintf(
+				"Withdraw the earned fees of the specified provider, for all providers of the owner if the provider not given.\n\n"+
+					"Example:\n"+
+					"$ %s tx service withdraw-fees <provider-address> --from mykey\n",
 				version.AppName,
 			),
 		),
@@ -908,7 +933,6 @@ $ %s tx service withdraw-fees <provider-address> --from mykey
 			owner := clientCtx.GetFromAddress()
 
 			var provider sdk.AccAddress
-
 			if len(args) == 1 {
 				provider, err = sdk.AccAddressFromBech32(args[0])
 				if err != nil {

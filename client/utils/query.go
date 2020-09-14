@@ -17,18 +17,20 @@ import (
 )
 
 // QueryRequestContext queries a single request context
-func QueryRequestContext(cliCtx client.Context, queryRoute string, params types.QueryRequestContextRequest) (
-	requestContext types.RequestContext, err error) {
+func QueryRequestContext(
+	cliCtx client.Context, queryRoute string, params types.QueryRequestContextRequest,
+) (
+	requestContext types.RequestContext, err error,
+) {
 	queryClient := types.NewQueryClient(cliCtx)
 	res, err := queryClient.RequestContext(context.Background(), &params)
 	if err != nil {
 		return requestContext, err
 	}
-	requestContext = *res.RequestContext
 
+	requestContext = *res.RequestContext
 	if requestContext.Empty() {
-		requestContext, err = QueryRequestContextByTxQuery(cliCtx, queryRoute, params)
-		if err != nil {
+		if requestContext, err = QueryRequestContextByTxQuery(cliCtx, queryRoute, params); err != nil {
 			return requestContext, err
 		}
 	}
@@ -36,6 +38,7 @@ func QueryRequestContext(cliCtx client.Context, queryRoute string, params types.
 	if requestContext.Empty() {
 		return requestContext, fmt.Errorf("unknown request context: %s", hex.EncodeToString(params.RequestContextId))
 	}
+
 	return requestContext, nil
 }
 
@@ -54,19 +57,15 @@ func QueryRequestContextByTxQuery(cliCtx client.Context, queryRoute string, para
 	}
 
 	if int64(len(txInfo.GetTx().GetMsgs())) > msgIndex {
-		msg := txInfo.GetTx().GetMsgs()[msgIndex]
-		if msg.Type() == types.TypeMsgCallService {
+		if msg := txInfo.GetTx().GetMsgs()[msgIndex]; msg.Type() == types.TypeMsgCallService {
 			requestMsg := msg.(*types.MsgCallService)
-			requestContext := types.NewRequestContext(
-				requestMsg.ServiceName, requestMsg.Providers,
-				requestMsg.Consumer, requestMsg.Input, requestMsg.ServiceFeeCap,
-				requestMsg.Timeout, requestMsg.SuperMode, requestMsg.Repeated,
-				requestMsg.RepeatedFrequency, requestMsg.RepeatedTotal,
-				uint64(requestMsg.RepeatedTotal), 0, 0, 0,
-				types.BATCHCOMPLETED, types.COMPLETED, 0, "",
-			)
-
-			return requestContext, nil
+			return types.NewRequestContext(
+				requestMsg.ServiceName, requestMsg.Providers, requestMsg.Consumer,
+				requestMsg.Input, requestMsg.ServiceFeeCap, requestMsg.Timeout,
+				requestMsg.SuperMode, requestMsg.Repeated, requestMsg.RepeatedFrequency,
+				requestMsg.RepeatedTotal, uint64(requestMsg.RepeatedTotal),
+				0, 0, 0, types.BATCHCOMPLETED, types.COMPLETED, 0, "",
+			), nil
 		}
 	}
 
@@ -74,8 +73,11 @@ func QueryRequestContextByTxQuery(cliCtx client.Context, queryRoute string, para
 }
 
 // QueryRequestByTxQuery will query for a single request via a direct txs tags query.
-func QueryRequestByTxQuery(cliCtx client.Context, queryRoute string, requestID tmbytes.HexBytes) (
-	request types.Request, err error) {
+func QueryRequestByTxQuery(
+	cliCtx client.Context, queryRoute string, requestID tmbytes.HexBytes,
+) (
+	request types.Request, err error,
+) {
 
 	contextID, _, requestHeight, batchRequestIndex, err := types.SplitRequestID(requestID)
 	if err != nil {
@@ -83,10 +85,11 @@ func QueryRequestByTxQuery(cliCtx client.Context, queryRoute string, requestID t
 	}
 
 	// query request context
-	requestContext, err := QueryRequestContext(cliCtx, queryRoute, types.QueryRequestContextRequest{
-		RequestContextId: contextID,
-	})
-
+	requestContext, err := QueryRequestContext(
+		cliCtx,
+		queryRoute,
+		types.QueryRequestContextRequest{RequestContextId: contextID},
+	)
 	if err != nil {
 		return request, err
 	}
@@ -117,14 +120,13 @@ func QueryRequestByTxQuery(cliCtx client.Context, queryRoute string, requestID t
 				}
 			}
 			if found {
-				err := json.Unmarshal(requestsBz, &requests)
-				if err != nil {
+				if err := json.Unmarshal(requestsBz, &requests); err != nil {
 					return request, err
 				}
 
 				if len(requests) > int(batchRequestIndex) {
 					compactRequest := requests[batchRequestIndex]
-					request = types.NewRequest(
+					return types.NewRequest(
 						requestID,
 						requestContext.ServiceName,
 						compactRequest.Provider,
@@ -136,9 +138,7 @@ func QueryRequestByTxQuery(cliCtx client.Context, queryRoute string, requestID t
 						compactRequest.ExpirationHeight,
 						compactRequest.RequestContextId,
 						compactRequest.RequestContextBatchCounter,
-					)
-
-					return request, nil
+					), nil
 				}
 			}
 		}
@@ -148,8 +148,11 @@ func QueryRequestByTxQuery(cliCtx client.Context, queryRoute string, requestID t
 }
 
 // QueryResponseByTxQuery will query for a single request via a direct txs tags query.
-func QueryResponseByTxQuery(cliCtx client.Context, queryRoute string, requestID tmbytes.HexBytes) (
-	response types.Response, err error) {
+func QueryResponseByTxQuery(
+	cliCtx client.Context, queryRoute string, requestID tmbytes.HexBytes,
+) (
+	response types.Response, err error,
+) {
 
 	events := []string{
 		fmt.Sprintf("%s.%s='%s'", sdk.EventTypeMessage, sdk.AttributeKeyAction, types.TypeMsgRespondService),
@@ -173,10 +176,11 @@ func QueryResponseByTxQuery(cliCtx client.Context, queryRoute string, requestID 
 	}
 
 	// query request context
-	requestContext, err := QueryRequestContext(cliCtx, queryRoute, types.QueryRequestContextRequest{
-		RequestContextId: contextID,
-	})
-
+	requestContext, err := QueryRequestContext(
+		cliCtx,
+		queryRoute,
+		types.QueryRequestContextRequest{RequestContextId: contextID},
+	)
 	if err != nil {
 		return response, err
 	}
@@ -187,14 +191,11 @@ func QueryResponseByTxQuery(cliCtx client.Context, queryRoute string, requestID 
 			if responseMsg.RequestId.String() != requestID.String() {
 				continue
 			}
-
-			response := types.NewResponse(
+			return types.NewResponse(
 				responseMsg.Provider, requestContext.Consumer,
 				responseMsg.Result, responseMsg.Output,
 				contextID, batchCounter,
-			)
-
-			return response, nil
+			), nil
 		}
 	}
 
@@ -202,7 +203,11 @@ func QueryResponseByTxQuery(cliCtx client.Context, queryRoute string, requestID 
 }
 
 // QueryRequestsByBinding queries active requests by the service binding
-func QueryRequestsByBinding(cliCtx client.Context, queryRoute string, serviceName string, provider sdk.AccAddress) ([]types.Request, int64, error) {
+func QueryRequestsByBinding(
+	cliCtx client.Context, queryRoute string, serviceName string, provider sdk.AccAddress,
+) (
+	[]types.Request, int64, error,
+) {
 	params := types.QueryRequestsParams{
 		ServiceName: serviceName,
 		Provider:    provider,
@@ -228,7 +233,11 @@ func QueryRequestsByBinding(cliCtx client.Context, queryRoute string, serviceNam
 }
 
 // QueryRequestsByReqCtx queries active requests by the request context ID
-func QueryRequestsByReqCtx(cliCtx client.Context, queryRoute, reqCtxIDStr, batchCounterStr string) ([]types.Request, int64, error) {
+func QueryRequestsByReqCtx(
+	cliCtx client.Context, queryRoute, reqCtxIDStr, batchCounterStr string,
+) (
+	[]types.Request, int64, error,
+) {
 	requestContextID, err := hex.DecodeString(reqCtxIDStr)
 	if err != nil {
 		return nil, 0, err

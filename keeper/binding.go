@@ -21,6 +21,7 @@ func (k Keeper) AddServiceBinding(
 	deposit sdk.Coins,
 	pricing string,
 	qos uint64,
+	options string,
 	owner sdk.AccAddress,
 ) error {
 	if _, found := k.GetServiceDefinition(ctx, serviceName); !found {
@@ -42,7 +43,15 @@ func (k Keeper) AddServiceBinding(
 
 	maxReqTimeout := k.MaxRequestTimeout(ctx)
 	if qos > uint64(maxReqTimeout) {
-		return sdkerrors.Wrapf(types.ErrInvalidQoS, "qos [%d] must not be greater than maximum request timeout [%d]", qos, maxReqTimeout)
+		return sdkerrors.Wrapf(
+			types.ErrInvalidQoS,
+			"qos [%d] must not be greater than maximum request timeout [%d]",
+			qos, maxReqTimeout,
+		)
+	}
+
+	if err := types.ValidateOptions(options); err != nil {
+		return err
 	}
 
 	parsedPricing, err := k.ParsePricing(ctx, pricing)
@@ -56,20 +65,22 @@ func (k Keeper) AddServiceBinding(
 
 	minDeposit := k.getMinDeposit(ctx, parsedPricing)
 	if !deposit.IsAllGTE(minDeposit) {
-		return sdkerrors.Wrapf(types.ErrInvalidDeposit, "insufficient deposit: minimum deposit %s, %s got", minDeposit, deposit)
+		return sdkerrors.Wrapf(
+			types.ErrInvalidDeposit,
+			"insufficient deposit: minimum deposit %s, %s got",
+			minDeposit, deposit,
+		)
 	}
 
 	// Send coins from owner's account to the deposit module account
-	if err := k.bankKeeper.SendCoinsFromAccountToModule(
-		ctx, owner, types.DepositAccName, deposit,
-	); err != nil {
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, owner, types.DepositAccName, deposit); err != nil {
 		return err
 	}
 
 	available := true
 	disabledTime := time.Time{}
 
-	svcBinding := types.NewServiceBinding(serviceName, provider, deposit, pricing, qos, available, disabledTime, owner)
+	svcBinding := types.NewServiceBinding(serviceName, provider, deposit, pricing, qos, options, available, disabledTime, owner)
 
 	k.SetServiceBinding(ctx, svcBinding)
 	k.SetOwnerServiceBinding(ctx, svcBinding)
@@ -91,6 +102,7 @@ func (k Keeper) UpdateServiceBinding(
 	deposit sdk.Coins,
 	pricing string,
 	qos uint64,
+	options string,
 	owner sdk.AccAddress,
 ) error {
 	binding, found := k.GetServiceBinding(ctx, serviceName, provider)
@@ -107,7 +119,11 @@ func (k Keeper) UpdateServiceBinding(
 	if qos != 0 {
 		maxReqTimeout := k.MaxRequestTimeout(ctx)
 		if qos > uint64(maxReqTimeout) {
-			return sdkerrors.Wrapf(types.ErrInvalidQoS, "qos [%d] must not be greater than maximum request timeout [%d]", qos, maxReqTimeout)
+			return sdkerrors.Wrapf(
+				types.ErrInvalidQoS,
+				"qos [%d] must not be greater than maximum request timeout [%d]",
+				qos, maxReqTimeout,
+			)
 		}
 
 		binding.QoS = qos
@@ -147,15 +163,17 @@ func (k Keeper) UpdateServiceBinding(
 	if binding.Available && updated {
 		minDeposit := k.getMinDeposit(ctx, parsedPricing)
 		if !binding.Deposit.IsAllGTE(minDeposit) {
-			return sdkerrors.Wrapf(types.ErrInvalidDeposit, "insufficient deposit: minimum deposit %s, %s got", minDeposit, binding.Deposit)
+			return sdkerrors.Wrapf(
+				types.ErrInvalidDeposit,
+				"insufficient deposit: minimum deposit %s, %s got",
+				minDeposit, binding.Deposit,
+			)
 		}
 	}
 
 	if !deposit.Empty() {
 		// Send coins from owner's account to the deposit module account
-		if err := k.bankKeeper.SendCoinsFromAccountToModule(
-			ctx, owner, types.DepositAccName, deposit,
-		); err != nil {
+		if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, owner, types.DepositAccName, deposit); err != nil {
 			return err
 		}
 	}
@@ -227,7 +245,11 @@ func (k Keeper) EnableServiceBinding(
 
 	minDeposit := k.getMinDeposit(ctx, k.GetPricing(ctx, serviceName, provider))
 	if !binding.Deposit.IsAllGTE(minDeposit) {
-		return sdkerrors.Wrapf(types.ErrInvalidDeposit, "insufficient deposit: minimum deposit %s, %s got", minDeposit, binding.Deposit)
+		return sdkerrors.Wrapf(
+			types.ErrInvalidDeposit,
+			"insufficient deposit: minimum deposit %s, %s got",
+			minDeposit, binding.Deposit,
+		)
 	}
 
 	if !deposit.Empty() {
@@ -314,7 +336,11 @@ func (k Keeper) SetServiceBinding(ctx sdk.Context, svcBinding types.ServiceBindi
 }
 
 // GetServiceBinding retrieves the specified service binding
-func (k Keeper) GetServiceBinding(ctx sdk.Context, serviceName string, provider sdk.AccAddress) (svcBinding types.ServiceBinding, found bool) {
+func (k Keeper) GetServiceBinding(
+	ctx sdk.Context, serviceName string, provider sdk.AccAddress,
+) (
+	svcBinding types.ServiceBinding, found bool,
+) {
 	store := ctx.KVStore(k.storeKey)
 
 	bz := store.Get(types.GetServiceBindingKey(serviceName, provider))
@@ -347,8 +373,7 @@ func (k Keeper) GetOwnerServiceBindings(ctx sdk.Context, owner sdk.AccAddress, s
 		serviceName := string(bindingKey[0:sepIndex])
 		provider := sdk.AccAddress(bindingKey[sepIndex+1:])
 
-		binding, found := k.GetServiceBinding(ctx, serviceName, provider)
-		if found {
+		if binding, found := k.GetServiceBinding(ctx, serviceName, provider); found {
 			bindings = append(bindings, &binding)
 		}
 	}

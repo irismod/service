@@ -4,13 +4,12 @@ import (
 	"testing"
 	"time"
 
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-
+	gogotypes "github.com/gogo/protobuf/types"
 	"github.com/stretchr/testify/suite"
 
-	gogotypes "github.com/gogo/protobuf/types"
 	"github.com/tendermint/tendermint/crypto/tmhash"
 	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -41,12 +40,13 @@ var (
 	testDeposit      = sdk.NewCoins(testCoin1)
 	testPricing      = `{"price":"2stake","promotions_by_volume":[{"volume":1,"discount":"0.5"}]}`
 	testQoS          = uint64(50)
+	testOptions      = "{}"
 	testWithdrawAddr = sdk.AccAddress([]byte("test-withdrawal-address"))
 	testAddedDeposit = sdk.NewCoins(testCoin2)
 
-	testInput         = `{"pair":"iris-usdt"}`
+	testInput         = `{"header":{},"body":{}}`
 	testResult        = `{"code":200,"message":""}`
-	testOutput        = `{"last":"100"}`
+	testOutput        = `{"header":{},"body":{}}`
 	testServiceFee    = sdk.NewCoins(testCoin3)
 	testServiceFeeCap = sdk.NewCoins(testCoin3)
 	testTimeout       = int64(100)
@@ -99,7 +99,7 @@ func (suite *KeeperTestSuite) setServiceDefinition() {
 }
 
 func (suite *KeeperTestSuite) setServiceBinding(available bool, disabledTime time.Time, provider, owner sdk.AccAddress) {
-	svcBinding := types.NewServiceBinding(testServiceName, provider, testDeposit, testPricing, testQoS, available, disabledTime, owner)
+	svcBinding := types.NewServiceBinding(testServiceName, provider, testDeposit, testPricing, testQoS, testOptions, available, disabledTime, owner)
 	suite.keeper.SetServiceBinding(suite.ctx, svcBinding)
 	suite.keeper.SetOwnerServiceBinding(suite.ctx, svcBinding)
 
@@ -128,7 +128,7 @@ func (suite *KeeperTestSuite) TestDefineService() {
 func (suite *KeeperTestSuite) TestBindService() {
 	suite.setServiceDefinition()
 
-	err := suite.keeper.AddServiceBinding(suite.ctx, testServiceName, testProvider, testDeposit, testPricing, testQoS, testOwner)
+	err := suite.keeper.AddServiceBinding(suite.ctx, testServiceName, testProvider, testDeposit, testPricing, testQoS, testOptions, testOwner)
 	suite.NoError(err)
 
 	svcBinding, found := suite.keeper.GetServiceBinding(suite.ctx, testServiceName, testProvider)
@@ -161,8 +161,9 @@ func (suite *KeeperTestSuite) TestBindService() {
 	// update binding
 	newPricing := `{"price":"1stake"}`
 	newQoS := uint64(80)
+	newOptions := "{}"
 
-	err = suite.keeper.UpdateServiceBinding(suite.ctx, svcBinding.ServiceName, svcBinding.Provider, testAddedDeposit, newPricing, newQoS, testOwner)
+	err = suite.keeper.UpdateServiceBinding(suite.ctx, svcBinding.ServiceName, svcBinding.Provider, testAddedDeposit, newPricing, newQoS, newOptions, testOwner)
 	suite.NoError(err)
 
 	updatedSvcBinding, found := suite.keeper.GetServiceBinding(suite.ctx, svcBinding.ServiceName, svcBinding.Provider)

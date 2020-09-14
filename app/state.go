@@ -8,23 +8,26 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/tendermint/tendermint/crypto/secp256k1"
+	tmtypes "github.com/tendermint/tendermint/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	simapparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/tendermint/tendermint/crypto/secp256k1"
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 // AppStateFn returns the initial application state using a genesis or the simulation parameters.
 // It panics if the user provides files for both of them.
 // If a file is not given for the genesis or the sim params, it creates a randomized one.
 func AppStateFn(cdc codec.JSONMarshaler, simManager *module.SimulationManager) simtypes.AppStateFn {
-	return func(r *rand.Rand, accs []simtypes.Account, config simtypes.Config,
-	) (appState json.RawMessage, simAccs []simtypes.Account, chainID string, genesisTimestamp time.Time) {
-
+	return func(
+		r *rand.Rand, accs []simtypes.Account, config simtypes.Config,
+	) (
+		appState json.RawMessage, simAccs []simtypes.Account, chainID string, genesisTimestamp time.Time,
+	) {
 		if simapp.FlagGenesisTimeValue == 0 {
 			genesisTimestamp = simtypes.RandTimestamp(r)
 		} else {
@@ -73,7 +76,9 @@ func AppStateFn(cdc codec.JSONMarshaler, simManager *module.SimulationManager) s
 func AppStateRandomizedFn(
 	simManager *module.SimulationManager, r *rand.Rand, cdc codec.JSONMarshaler,
 	accs []simtypes.Account, genesisTimestamp time.Time, appParams simtypes.AppParams,
-) (json.RawMessage, []simtypes.Account) {
+) (
+	json.RawMessage, []simtypes.Account,
+) {
 	numAccs := int64(len(accs))
 	genesisState := NewDefaultGenesisState()
 
@@ -82,22 +87,26 @@ func AppStateRandomizedFn(
 	var initialStake, numInitiallyBonded int64
 	appParams.GetOrGenerate(
 		cdc, simapparams.StakePerAccount, &initialStake, r,
-		func(r *rand.Rand) { initialStake = r.Int63n(1e12) },
+		func(r *rand.Rand) {
+			initialStake = r.Int63n(1e12)
+		},
 	)
 	appParams.GetOrGenerate(
 		cdc, simapparams.InitiallyBondedValidators, &numInitiallyBonded, r,
-		func(r *rand.Rand) { numInitiallyBonded = int64(r.Intn(300)) },
+		func(r *rand.Rand) {
+			numInitiallyBonded = int64(r.Intn(300))
+		},
 	)
 
 	if numInitiallyBonded > numAccs {
 		numInitiallyBonded = numAccs
 	}
 
-	fmt.Printf(
-		`Selected randomly generated parameters for simulated genesis:
+	fmt.Printf(`
+Selected randomly generated parameters for simulated genesis:
 {
-  stake_per_account: "%d",
-  initially_bonded_validators: "%d"
+    stake_per_account: "%d",
+    initially_bonded_validators: "%d"
 }
 `, initialStake, numInitiallyBonded,
 	)

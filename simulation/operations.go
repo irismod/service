@@ -179,11 +179,13 @@ func SimulateMsgBindService(ak types.AccountKeeper, bk types.BankKeeper, k keepe
 		deposit := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(int64(simtypes.RandIntBetween(r, 1000000, 2000000)))))
 		pricing := fmt.Sprintf(`{"price":"%d%s"`, simtypes.RandIntBetween(r, 100, 1000), sdk.DefaultBondDenom)
 		qos := uint64(simtypes.RandIntBetween(r, 10, 100))
+		// XXX
+		options := "{...}"
 
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 
-		msg := types.NewMsgBindService(serviceName, simAccount.Address, deposit, pricing, qos, simAccount.Address)
+		msg := types.NewMsgBindService(serviceName, simAccount.Address, deposit, pricing, qos, options, simAccount.Address)
 
 		fees, err := simtypes.RandomFees(r, ctx, spendable)
 		if err != nil {
@@ -225,11 +227,13 @@ func SimulateMsgUpdateServiceBinding(ak types.AccountKeeper, bk types.BankKeeper
 		deposit := sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(int64(simtypes.RandIntBetween(r, 100, 1000)))))
 		pricing := fmt.Sprintf(`{"price":"%d%s"`, simtypes.RandIntBetween(r, 100, 1000), sdk.DefaultBondDenom)
 		qos := uint64(simtypes.RandIntBetween(r, 10, 100))
+		// XXX
+		options := "{...}"
 
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 
-		msg := types.NewMsgUpdateServiceBinding(serviceName, simAccount.Address, deposit, pricing, qos, simAccount.Address)
+		msg := types.NewMsgUpdateServiceBinding(serviceName, simAccount.Address, deposit, pricing, qos, options, simAccount.Address)
 
 		fees, err := simtypes.RandomFees(r, ctx, spendable)
 		if err != nil {

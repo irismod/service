@@ -164,8 +164,7 @@ func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.Val
 // AppModuleSimulation functions
 
 // GenerateGenesisState creates a randomized GenState of the service module.
-func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
-}
+func (AppModule) GenerateGenesisState(simState *module.SimulationState) {}
 
 // ProposalContents doesn't return any content functions for governance proposals.
 func (AppModule) ProposalContents(simState module.SimulationState) []simtypes.WeightedProposalContent {
@@ -184,6 +183,7 @@ func (am AppModule) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {
 
 // WeightedOperations returns the all the service module operations with their respective weights.
 func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
-	return simulation.WeightedOperations(simState.AppParams, simState.Cdc,
-		am.accountKeeper, am.bankKeeper, am.keeper)
+	return simulation.WeightedOperations(
+		simState.AppParams, simState.Cdc, am.accountKeeper, am.bankKeeper, am.keeper,
+	)
 }

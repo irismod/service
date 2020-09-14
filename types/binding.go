@@ -14,6 +14,7 @@ func NewServiceBinding(
 	deposit sdk.Coins,
 	pricing string,
 	qos uint64,
+	options string,
 	available bool,
 	disabledTime time.Time,
 	owner sdk.AccAddress,
@@ -24,6 +25,7 @@ func NewServiceBinding(
 		Deposit:      deposit,
 		Pricing:      pricing,
 		QoS:          qos,
+		Options:      options,
 		Available:    available,
 		DisabledTime: disabledTime,
 		Owner:        owner,
@@ -76,8 +78,7 @@ func ValidatePricing(pricing Pricing) error {
 	// p.EndTime > p.StartTime
 	// p[i].StartTime >= p[i-1].EndTime
 	for i, p := range pricing.PromotionsByTime {
-		if !p.EndTime.After(p.StartTime) ||
-			(i > 0 && p.StartTime.Before(pricing.PromotionsByTime[i-1].EndTime)) {
+		if !p.EndTime.After(p.StartTime) || (i > 0 && p.StartTime.Before(pricing.PromotionsByTime[i-1].EndTime)) {
 			return sdkerrors.Wrapf(ErrInvalidPricing, "invalid timing promotion %d", i)
 		}
 	}
@@ -112,6 +113,10 @@ func (binding ServiceBinding) Validate() error {
 	}
 
 	if err := ValidateQoS(binding.QoS); err != nil {
+		return err
+	}
+
+	if err := ValidateOptions(binding.Options); err != nil {
 		return err
 	}
 

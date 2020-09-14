@@ -40,7 +40,7 @@ func registerQueryRoutes(cliCtx client.Context, r *mux.Router) {
 	// query the system schema by the schema name
 	r.HandleFunc(fmt.Sprintf("/service/schemas/{%s}", RestSchemaName), querySchemaHandlerFn(cliCtx)).Methods("GET")
 	// query the current service parameter values
-	r.HandleFunc(fmt.Sprintf("/service/parameters"), queryParamsHandlerFn(cliCtx)).Methods("GET")
+	r.HandleFunc("/service/parameters", queryParamsHandlerFn(cliCtx)).Methods("GET")
 }
 
 func queryDefinitionHandlerFn(cliCtx client.Context) http.HandlerFunc {
