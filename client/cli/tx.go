@@ -20,8 +20,8 @@ import (
 	"github.com/irismod/service/types"
 )
 
-// GetTxCmd returns the transaction commands for this module
-func GetTxCmd() *cobra.Command {
+// NewTxCmd returns the transaction commands for this module
+func NewTxCmd() *cobra.Command {
 	serviceTxCmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      "Service transaction subcommands",

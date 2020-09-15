@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -133,7 +132,7 @@ func TestAppImportExport(t *testing.T) {
 
 	fmt.Printf("exporting genesis...\n")
 
-	appState, _, consensusParams, err := app.ExportAppStateAndValidators(false, []string{})
+	exported, err := app.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err)
 
 	fmt.Printf("importing genesis...\n")
@@ -150,26 +149,23 @@ func TestAppImportExport(t *testing.T) {
 	require.Equal(t, "SimApp", newApp.Name())
 
 	var genesisState GenesisState
-	err = json.Unmarshal(appState, &genesisState)
+	err = json.Unmarshal(exported.AppState, &genesisState)
 	require.NoError(t, err)
 
 	ctxA := app.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
 	ctxB := newApp.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
 	newApp.mm.InitGenesis(ctxB, app.AppCodec(), genesisState)
-	newApp.StoreConsensusParams(ctxB, consensusParams)
+	newApp.StoreConsensusParams(ctxB, exported.ConsensusParams)
 
 	fmt.Printf("comparing stores...\n")
 
 	storeKeysPrefixes := []StoreKeysPrefixes{
 		{app.keys[authtypes.StoreKey], newApp.keys[authtypes.StoreKey], [][]byte{}},
-		{
-			app.keys[stakingtypes.StoreKey],
-			newApp.keys[stakingtypes.StoreKey],
+		{app.keys[stakingtypes.StoreKey], newApp.keys[stakingtypes.StoreKey],
 			[][]byte{
-				stakingtypes.UnbondingQueueKey, stakingtypes.RedelegationQueueKey,
-				stakingtypes.ValidatorQueueKey, stakingtypes.HistoricalInfoKey,
-			},
-		}, // ordering may change but it doesn't matter
+				stakingtypes.UnbondingQueueKey, stakingtypes.RedelegationQueueKey, stakingtypes.ValidatorQueueKey,
+				stakingtypes.HistoricalInfoKey,
+			}}, // ordering may change but it doesn't matter
 		{app.keys[slashingtypes.StoreKey], newApp.keys[slashingtypes.StoreKey], [][]byte{}},
 		{app.keys[minttypes.StoreKey], newApp.keys[minttypes.StoreKey], [][]byte{}},
 		{app.keys[distrtypes.StoreKey], newApp.keys[distrtypes.StoreKey], [][]byte{}},
@@ -237,7 +233,7 @@ func TestAppSimulationAfterImport(t *testing.T) {
 
 	fmt.Printf("exporting genesis...\n")
 
-	appState, _, _, err := app.ExportAppStateAndValidators(true, []string{})
+	exported, err := app.ExportAppStateAndValidators(true, []string{})
 	require.NoError(t, err)
 
 	fmt.Printf("importing genesis...\n")
@@ -254,7 +250,7 @@ func TestAppSimulationAfterImport(t *testing.T) {
 	require.Equal(t, "SimApp", newApp.Name())
 
 	newApp.InitChain(abci.RequestInitChain{
-		AppStateBytes: appState,
+		AppStateBytes: exported.AppState,
 	})
 
 	_, _, err = simulation.SimulateFromSeed(
@@ -329,8 +325,7 @@ func TestAppStateDeterminism(t *testing.T) {
 			if j != 0 {
 				require.Equal(
 					t, string(appHashList[0]), string(appHashList[j]),
-					"non-determinism in seed %d: %d/%d, attempt: %d/%d\n",
-					config.Seed, i+1, numSeeds, j+1, numTimesToRunPerSeed,
+					"non-determinism in seed %d: %d/%d, attempt: %d/%d\n", config.Seed, i+1, numSeeds, j+1, numTimesToRunPerSeed,
 				)
 			}
 		}

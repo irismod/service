@@ -152,7 +152,7 @@ type withdrawEarnedFeesReq struct {
 func defineServiceHandlerFn(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req DefineServiceReq
-		if !rest.ReadRESTReq(w, r, cliCtx.JSONMarshaler, &req) {
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
 			return
 		}
 
@@ -180,7 +180,7 @@ func defineServiceHandlerFn(cliCtx client.Context) http.HandlerFunc {
 func bindServiceHandlerFn(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req BindServiceReq
-		if !rest.ReadRESTReq(w, r, cliCtx.JSONMarshaler, &req) {
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
 			return
 		}
 
@@ -236,7 +236,7 @@ func updateServiceBindingHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var req UpdateServiceBindingReq
-		if !rest.ReadRESTReq(w, r, cliCtx.JSONMarshaler, &req) {
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
 			return
 		}
 
@@ -289,7 +289,7 @@ func setWithdrawAddrHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var req SetWithdrawAddrReq
-		if !rest.ReadRESTReq(w, r, cliCtx.JSONMarshaler, &req) {
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
 			return
 		}
 
@@ -328,7 +328,7 @@ func disableServiceBindingHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var req DisableServiceBindingReq
-		if !rest.ReadRESTReq(w, r, cliCtx.JSONMarshaler, &req) {
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
 			return
 		}
 
@@ -371,7 +371,7 @@ func enableServiceBindingHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var req EnableServiceBindingReq
-		if !rest.ReadRESTReq(w, r, cliCtx.JSONMarshaler, &req) {
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
 			return
 		}
 
@@ -423,7 +423,7 @@ func refundServiceDepositHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var req RefundServiceDepositReq
-		if !rest.ReadRESTReq(w, r, cliCtx.JSONMarshaler, &req) {
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
 			return
 		}
 
@@ -456,7 +456,7 @@ func refundServiceDepositHandlerFn(cliCtx client.Context) http.HandlerFunc {
 func requestServiceHandlerFn(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req callServiceReq
-		if !rest.ReadRESTReq(w, r, cliCtx.JSONMarshaler, &req) {
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
 			return
 		}
 
@@ -504,7 +504,7 @@ func requestServiceHandlerFn(cliCtx client.Context) http.HandlerFunc {
 func respondServiceHandlerFn(cliCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req respondServiceReq
-		if !rest.ReadRESTReq(w, r, cliCtx.JSONMarshaler, &req) {
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
 			return
 		}
 
@@ -548,7 +548,7 @@ func pauseRequestContextHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var req pauseRequestContextReq
-		if !rest.ReadRESTReq(w, r, cliCtx.JSONMarshaler, &req) {
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
 			return
 		}
 
@@ -585,7 +585,7 @@ func startRequestContextHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var req startRequestContextReq
-		if !rest.ReadRESTReq(w, r, cliCtx.JSONMarshaler, &req) {
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
 			return
 		}
 
@@ -622,7 +622,7 @@ func killRequestContextHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var req killRequestContextReq
-		if !rest.ReadRESTReq(w, r, cliCtx.JSONMarshaler, &req) {
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
 			return
 		}
 
@@ -659,7 +659,7 @@ func updateRequestContextHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var req updateRequestContextReq
-		if !rest.ReadRESTReq(w, r, cliCtx.JSONMarshaler, &req) {
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
 			return
 		}
 
@@ -720,7 +720,7 @@ func withdrawEarnedFeesHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var req withdrawEarnedFeesReq
-		if !rest.ReadRESTReq(w, r, cliCtx.JSONMarshaler, &req) {
+		if !rest.ReadRESTReq(w, r, cliCtx.LegacyAmino, &req) {
 			return
 		}
 

@@ -62,7 +62,7 @@ func queryDefinitionHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			ServiceName: serviceName,
 		}
 
-		bz, err := cliCtx.JSONMarshaler.MarshalJSON(params)
+		bz, err := cliCtx.LegacyAmino.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -107,7 +107,7 @@ func queryBindingHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			Provider:    provider,
 		}
 
-		bz, err := cliCtx.JSONMarshaler.MarshalJSON(params)
+		bz, err := cliCtx.LegacyAmino.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -157,7 +157,7 @@ func queryBindingsHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			Owner:       owner,
 		}
 
-		bz, err := cliCtx.JSONMarshaler.MarshalJSON(params)
+		bz, err := cliCtx.LegacyAmino.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -195,7 +195,7 @@ func queryWithdrawAddrHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			Owner: owner,
 		}
 
-		bz, err := cliCtx.JSONMarshaler.MarshalJSON(params)
+		bz, err := cliCtx.LegacyAmino.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -233,7 +233,7 @@ func queryRequestHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			RequestID: requestID,
 		}
 
-		bz, err := cliCtx.JSONMarshaler.MarshalJSON(params)
+		bz, err := cliCtx.LegacyAmino.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -247,7 +247,7 @@ func queryRequestHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var request types.Request
-		_ = cliCtx.JSONMarshaler.UnmarshalJSON(res, &request)
+		_ = cliCtx.LegacyAmino.UnmarshalJSON(res, &request)
 		if request.Empty() {
 			request, err = serviceutils.QueryRequestByTxQuery(cliCtx, types.RouterKey, params.RequestID)
 			if err != nil {
@@ -323,7 +323,7 @@ func queryResponseHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			RequestID: requestID,
 		}
 
-		bz, err := cliCtx.JSONMarshaler.MarshalJSON(params)
+		bz, err := cliCtx.LegacyAmino.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -337,7 +337,7 @@ func queryResponseHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var response types.Response
-		_ = cliCtx.JSONMarshaler.UnmarshalJSON(res, &response)
+		_ = cliCtx.LegacyAmino.UnmarshalJSON(res, &response)
 		if response.Empty() {
 			response, err = serviceutils.QueryResponseByTxQuery(cliCtx, types.RouterKey, params.RequestID)
 			if err != nil {
@@ -414,7 +414,7 @@ func queryResponsesHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			BatchCounter:     batchCounter,
 		}
 
-		bz, err := cliCtx.JSONMarshaler.MarshalJSON(params)
+		bz, err := cliCtx.LegacyAmino.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -452,7 +452,7 @@ func queryEarnedFeesHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			Provider: provider,
 		}
 
-		bz, err := cliCtx.JSONMarshaler.MarshalJSON(params)
+		bz, err := cliCtx.LegacyAmino.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -483,7 +483,7 @@ func querySchemaHandlerFn(cliCtx client.Context) http.HandlerFunc {
 			SchemaName: vars[RestSchemaName],
 		}
 
-		bz, err := cliCtx.JSONMarshaler.MarshalJSON(params)
+		bz, err := cliCtx.LegacyAmino.MarshalJSON(params)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -497,7 +497,7 @@ func querySchemaHandlerFn(cliCtx client.Context) http.HandlerFunc {
 		}
 
 		var schema serviceutils.SchemaType
-		if err := cliCtx.JSONMarshaler.UnmarshalJSON(res, &schema); err != nil {
+		if err := cliCtx.LegacyAmino.UnmarshalJSON(res, &schema); err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}

@@ -213,7 +213,7 @@ func QueryRequestsByBinding(
 		Provider:    provider,
 	}
 
-	bz, err := cliCtx.JSONMarshaler.MarshalJSON(params)
+	bz, err := cliCtx.LegacyAmino.MarshalJSON(params)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -225,7 +225,7 @@ func QueryRequestsByBinding(
 	}
 
 	var requests []types.Request
-	if err := cliCtx.JSONMarshaler.UnmarshalJSON(res, &requests); err != nil {
+	if err := cliCtx.LegacyAmino.UnmarshalJSON(res, &requests); err != nil {
 		return nil, 0, err
 	}
 
@@ -253,7 +253,7 @@ func QueryRequestsByReqCtx(
 		BatchCounter:     batchCounter,
 	}
 
-	bz, err := cliCtx.JSONMarshaler.MarshalJSON(params)
+	bz, err := cliCtx.LegacyAmino.MarshalJSON(params)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -265,7 +265,7 @@ func QueryRequestsByReqCtx(
 	}
 
 	var requests []types.Request
-	if err := cliCtx.JSONMarshaler.UnmarshalJSON(res, &requests); err != nil {
+	if err := cliCtx.LegacyAmino.UnmarshalJSON(res, &requests); err != nil {
 		return nil, 0, err
 	}
 

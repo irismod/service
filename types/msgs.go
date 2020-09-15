@@ -118,7 +118,7 @@ func (msg MsgDefineService) GetSignBytes() []byte {
 		msg.Tags = nil
 	}
 
-	bz := ModuleCdc.MustMarshalJSON(msg)
+	bz := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(bz)
 }
 
@@ -162,7 +162,7 @@ func (msg MsgBindService) GetSignBytes() []byte {
 		msg.Deposit = nil
 	}
 
-	b := ModuleCdc.MustMarshalJSON(msg)
+	b := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(b)
 }
 
@@ -235,7 +235,7 @@ func (msg MsgUpdateServiceBinding) GetSignBytes() []byte {
 		msg.Deposit = nil
 	}
 
-	b := ModuleCdc.MustMarshalJSON(msg)
+	b := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(b)
 }
 
@@ -293,7 +293,7 @@ func (msg MsgSetWithdrawAddress) Type() string { return TypeMsgSetWithdrawAddres
 
 // GetSignBytes implements Msg.
 func (msg MsgSetWithdrawAddress) GetSignBytes() []byte {
-	b := ModuleCdc.MustMarshalJSON(msg)
+	b := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(b)
 }
 
@@ -334,7 +334,7 @@ func (msg MsgDisableServiceBinding) Type() string { return TypeMsgDisableService
 
 // GetSignBytes implements Msg.
 func (msg MsgDisableServiceBinding) GetSignBytes() []byte {
-	b := ModuleCdc.MustMarshalJSON(msg)
+	b := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(b)
 }
 
@@ -385,7 +385,7 @@ func (msg MsgEnableServiceBinding) GetSignBytes() []byte {
 		msg.Deposit = nil
 	}
 
-	b := ModuleCdc.MustMarshalJSON(msg)
+	b := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(b)
 }
 
@@ -440,7 +440,7 @@ func (msg MsgRefundServiceDeposit) Type() string { return TypeMsgRefundServiceDe
 
 // GetSignBytes implements Msg.
 func (msg MsgRefundServiceDeposit) GetSignBytes() []byte {
-	b := ModuleCdc.MustMarshalJSON(msg)
+	b := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(b)
 }
 
@@ -507,10 +507,7 @@ func (msg MsgCallService) GetSignBytes() []byte {
 		msg.ServiceFeeCap = nil
 	}
 
-	b, err := ModuleCdc.MarshalJSON(msg)
-	if err != nil {
-		panic(err)
-	}
+	b := ModuleCdc.MustMarshalJSON(&msg)
 
 	return sdk.MustSortJSON(b)
 }
@@ -563,11 +560,7 @@ func (msg MsgRespondService) Type() string { return TypeMsgRespondService }
 
 // GetSignBytes implements Msg.
 func (msg MsgRespondService) GetSignBytes() []byte {
-	b, err := ModuleCdc.MarshalJSON(msg)
-	if err != nil {
-		panic(err)
-	}
-
+	b := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(b)
 }
 
@@ -616,11 +609,7 @@ func (msg MsgPauseRequestContext) Type() string { return TypeMsgPauseRequestCont
 
 // GetSignBytes implements Msg.
 func (msg MsgPauseRequestContext) GetSignBytes() []byte {
-	b, err := ModuleCdc.MarshalJSON(msg)
-	if err != nil {
-		panic(err)
-	}
-
+	b := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(b)
 }
 
@@ -655,11 +644,7 @@ func (msg MsgStartRequestContext) Type() string { return TypeMsgStartRequestCont
 
 // GetSignBytes implements Msg.
 func (msg MsgStartRequestContext) GetSignBytes() []byte {
-	b, err := ModuleCdc.MarshalJSON(msg)
-	if err != nil {
-		panic(err)
-	}
-
+	b := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(b)
 }
 
@@ -694,11 +679,7 @@ func (msg MsgKillRequestContext) Type() string { return TypeMsgKillRequestContex
 
 // GetSignBytes implements Msg.
 func (msg MsgKillRequestContext) GetSignBytes() []byte {
-	b, err := ModuleCdc.MarshalJSON(msg)
-	if err != nil {
-		panic(err)
-	}
-
+	b := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(b)
 }
 
@@ -754,10 +735,7 @@ func (msg MsgUpdateRequestContext) GetSignBytes() []byte {
 		msg.ServiceFeeCap = nil
 	}
 
-	b, err := ModuleCdc.MarshalJSON(msg)
-	if err != nil {
-		panic(err)
-	}
+	b := ModuleCdc.MustMarshalJSON(&msg)
 
 	return sdk.MustSortJSON(b)
 }
@@ -804,7 +782,7 @@ func (msg MsgWithdrawEarnedFees) Type() string { return TypeMsgWithdrawEarnedFee
 
 // GetSignBytes implements Msg.
 func (msg MsgWithdrawEarnedFees) GetSignBytes() []byte {
-	b := ModuleCdc.MustMarshalJSON(msg)
+	b := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(b)
 }
 

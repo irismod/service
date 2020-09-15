@@ -8,17 +8,18 @@ import (
 )
 
 var (
-	amino     = codec.New()
+	amino     = codec.NewLegacyAmino()
 	ModuleCdc = codec.NewAminoCodec(amino)
 )
 
 func init() {
-	RegisterCodec(amino)
+	RegisterLegacyAminoCodec(amino)
 	cryptocodec.RegisterCrypto(amino)
+	amino.Seal()
 }
 
-// RegisterCodec registers concrete types on codec
-func RegisterCodec(cdc *codec.LegacyAmino) {
+// RegisterLegacyAminoCodec registers concrete types on codec
+func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&MsgDefineService{}, "irismod/service/MsgDefineService", nil)
 	cdc.RegisterConcrete(&MsgBindService{}, "irismod/service/MsgBindService", nil)
 	cdc.RegisterConcrete(&MsgUpdateServiceBinding{}, "irismod/service/MsgUpdateServiceBinding", nil)
