@@ -57,13 +57,23 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	// handler for the new request batch
 	newRequestBatchHandler := func(requestContextID tmbytes.HexBytes, requestContext types.RequestContext) {
 		if requestContext.State == types.RUNNING {
-			providers, totalPrices := k.FilterServiceProviders(
-				ctx, requestContext.ServiceName,
+			providers, totalPrices, rawDenom, err := k.FilterServiceProviders(
+				ctx,
+				requestContext.ServiceName,
 				requestContext.Providers,
 				requestContext.Timeout,
 				requestContext.ServiceFeeCap,
 				requestContext.Consumer,
 			)
+			if err != nil {
+				ctx.EventManager().EmitEvents(sdk.Events{
+					sdk.NewEvent(
+						types.EventTypeNoExchangeRate,
+						sdk.NewAttribute(types.AttributeKeyPriceDenom, rawDenom),
+					),
+				})
+				return
+			}
 
 			if len(providers) > 0 && len(providers) >= int(requestContext.ResponseThreshold) {
 				if !requestContext.SuperMode {

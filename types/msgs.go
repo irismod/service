@@ -56,7 +56,7 @@ var (
 	_ sdk.Msg = &MsgWithdrawEarnedFees{}
 )
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // NewMsgDefineService creates a new MsgDefineService instance
 func NewMsgDefineService(
@@ -127,7 +127,7 @@ func (msg MsgDefineService) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Author}
 }
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // NewMsgBindService creates a new MsgBindService instance
 func NewMsgBindService(
@@ -200,7 +200,7 @@ func (msg MsgBindService) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Owner}
 }
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // NewMsgUpdateServiceBinding creates a new MsgUpdateServiceBinding instance
 func NewMsgUpdateServiceBinding(
@@ -275,7 +275,7 @@ func (msg MsgUpdateServiceBinding) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Owner}
 }
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // NewMsgSetWithdrawAddress creates a new MsgSetWithdrawAddress instance
 func NewMsgSetWithdrawAddress(owner, withdrawAddr sdk.AccAddress) *MsgSetWithdrawAddress {
@@ -311,7 +311,7 @@ func (msg MsgSetWithdrawAddress) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Owner}
 }
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // NewMsgDisableServiceBinding creates a new MsgDisableServiceBinding instance
 func NewMsgDisableServiceBinding(
@@ -356,7 +356,7 @@ func (msg MsgDisableServiceBinding) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Owner}
 }
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // NewMsgEnableServiceBinding creates a new MsgEnableServiceBinding instance
 func NewMsgEnableServiceBinding(
@@ -417,7 +417,7 @@ func (msg MsgEnableServiceBinding) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Owner}
 }
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // NewMsgRefundServiceDeposit creates a new MsgRefundServiceDeposit instance
 func NewMsgRefundServiceDeposit(
@@ -462,7 +462,7 @@ func (msg MsgRefundServiceDeposit) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Owner}
 }
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // NewMsgCallService creates a new MsgCallService instance
 func NewMsgCallService(
@@ -535,7 +535,7 @@ func (msg MsgCallService) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Consumer}
 }
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // NewMsgRespondService creates a new MsgRespondService instance
 func NewMsgRespondService(
@@ -591,7 +591,7 @@ func (msg MsgRespondService) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Provider}
 }
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // NewMsgPauseRequestContext creates a new MsgPauseRequestContext instance
 func NewMsgPauseRequestContext(requestContextID tmbytes.HexBytes, consumer sdk.AccAddress) *MsgPauseRequestContext {
@@ -626,7 +626,7 @@ func (msg MsgPauseRequestContext) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Consumer}
 }
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // NewMsgStartRequestContext creates a new MsgStartRequestContext instance
 func NewMsgStartRequestContext(requestContextID tmbytes.HexBytes, consumer sdk.AccAddress) *MsgStartRequestContext {
@@ -661,7 +661,7 @@ func (msg MsgStartRequestContext) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Consumer}
 }
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // NewMsgKillRequestContext creates a new MsgKillRequestContext instance
 func NewMsgKillRequestContext(requestContextID tmbytes.HexBytes, consumer sdk.AccAddress) *MsgKillRequestContext {
@@ -696,7 +696,7 @@ func (msg MsgKillRequestContext) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Consumer}
 }
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // NewMsgUpdateRequestContext creates a new MsgUpdateRequestContext instance
 func NewMsgUpdateRequestContext(
@@ -764,7 +764,7 @@ func (msg MsgUpdateRequestContext) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Consumer}
 }
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // NewMsgWithdrawEarnedFees creates a new MsgWithdrawEarnedFees instance
 func NewMsgWithdrawEarnedFees(owner, provider sdk.AccAddress) *MsgWithdrawEarnedFees {
@@ -872,7 +872,7 @@ func ValidateServiceDeposit(deposit sdk.Coins) error {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "invalid deposit")
 	}
 
-	if !deposit.IsAllPositive() {
+	if deposit.IsAnyNegative() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "invalid deposit")
 	}
 
@@ -903,7 +903,7 @@ func ValidateWithdrawAddress(withdrawAddress sdk.AccAddress) error {
 	return nil
 }
 
-//______________________________________________________________________
+// ______________________________________________________________________
 
 // ValidateRequest validates the request params
 func ValidateRequest(

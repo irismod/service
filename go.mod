@@ -14,6 +14,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/tendermint/tendermint v0.34.0-rc3.0.20200907055413-3359e0bf2f84
 	github.com/tendermint/tm-db v0.6.2
+	github.com/tidwall/gjson v1.6.1
 	github.com/xeipuuv/gojsonschema v1.2.0
 	google.golang.org/genproto v0.0.0-20200911024640-645f7a48b24f
 	google.golang.org/grpc v1.32.0

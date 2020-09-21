@@ -1,6 +1,8 @@
 package service
 
 import (
+	tmbytes "github.com/tendermint/tendermint/libs/bytes"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -82,6 +84,10 @@ func handleMsgDefineService(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDefi
 }
 
 func handleMsgBindService(ctx sdk.Context, k keeper.Keeper, msg *types.MsgBindService) (*sdk.Result, error) {
+	if _, _, found := k.GetModuleServiceByServiceName(msg.ServiceName); found {
+		return nil, sdkerrors.Wrapf(types.ErrBindModuleService, "module service %s", msg.ServiceName)
+	}
+
 	if err := k.AddServiceBinding(
 		ctx, msg.ServiceName, msg.Provider, msg.Deposit,
 		msg.Pricing, msg.QoS, msg.Options, msg.Owner,
@@ -183,14 +189,30 @@ func handleMsgRefundServiceDeposit(ctx sdk.Context, k keeper.Keeper, msg *types.
 
 // handleMsgCallService handles MsgCallService
 func handleMsgCallService(ctx sdk.Context, k keeper.Keeper, msg *types.MsgCallService) (*sdk.Result, error) {
-	reqContextID, err := k.CreateRequestContext(
-		ctx, msg.ServiceName, msg.Providers, msg.Consumer,
-		msg.Input, msg.ServiceFeeCap, msg.Timeout,
-		msg.SuperMode, msg.Repeated, msg.RepeatedFrequency,
-		msg.RepeatedTotal, types.RUNNING, 0, "",
-	)
-	if err != nil {
-		return nil, err
+	var reqContextID tmbytes.HexBytes
+	var err error
+
+	_, moduleService, found := k.GetModuleServiceByServiceName(msg.ServiceName)
+	if !found {
+		if reqContextID, err = k.CreateRequestContext(
+			ctx, msg.ServiceName, msg.Providers, msg.Consumer,
+			msg.Input, msg.ServiceFeeCap, msg.Timeout,
+			msg.SuperMode, msg.Repeated, msg.RepeatedFrequency,
+			msg.RepeatedTotal, types.RUNNING, 0, "",
+		); err != nil {
+			return nil, err
+		}
+	} else {
+		if reqContextID, err = k.CreateRequestContext(
+			ctx, msg.ServiceName, []sdk.AccAddress{moduleService.Provider}, msg.Consumer,
+			msg.Input, msg.ServiceFeeCap, 1, false, false, 0, 0, types.RUNNING, 0, "",
+		); err != nil {
+			return nil, err
+		}
+
+		if err := k.RequestModuleService(ctx, moduleService, reqContextID, msg.Consumer, msg.Input); err != nil {
+			return nil, err
+		}
 	}
 
 	ctx.EventManager().EmitEvents(sdk.Events{

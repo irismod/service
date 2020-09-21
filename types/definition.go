@@ -10,7 +10,7 @@ func NewServiceDefinition(
 	description string,
 	tags []string,
 	author sdk.AccAddress,
-	authorDescription,
+	authorDescription string,
 	schemas string,
 ) ServiceDefinition {
 	return ServiceDefinition{

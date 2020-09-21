@@ -25,8 +25,9 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data types.GenesisState) {
 	}
 
 	for _, binding := range data.Bindings {
-		k.SetServiceBinding(ctx, binding)
-		k.SetOwnerServiceBinding(ctx, binding)
+		if err := k.SetServiceBindingForGenesis(ctx, binding); err != nil {
+			panic(err.Error())
+		}
 	}
 
 	for ownerAddressStr, withdrawAddress := range data.WithdrawAddresses {

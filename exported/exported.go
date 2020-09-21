@@ -16,6 +16,9 @@ type (
 
 	// StateCallback defines the state callback interface
 	StateCallback = types.StateCallback
+
+	// ModuleService defines the moduler service interface
+	ModuleService = types.ModuleService
 )
 
 const (

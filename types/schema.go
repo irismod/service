@@ -52,10 +52,23 @@ func ValidateBindingPricing(pricing string) error {
 }
 
 // ValidateRequestInput validates the request input against the input schema
-func ValidateRequestInput(schemas string, input string) error {
+func ValidateRequestInput(input string) error {
 	if err := validateDocument([]byte(InputSchema), input); err != nil {
 		return sdkerrors.Wrap(ErrInvalidRequestInput, err.Error())
 	}
+	return nil
+}
+
+func ValidateRequestInputBody(schemas string, inputBody string) error {
+	inputSchemaBz, err := parseInputSchema(schemas)
+	if err != nil {
+		return err
+	}
+
+	if err := validateDocument(inputSchemaBz, inputBody); err != nil {
+		return sdkerrors.Wrap(ErrInvalidRequestInputBody, err.Error())
+	}
+
 	return nil
 }
 
@@ -73,10 +86,23 @@ func ValidateResponseResult(result string) error {
 }
 
 // ValidateResponseOutput validates the response output against the output schema
-func ValidateResponseOutput(schemas string, output string) error {
+func ValidateResponseOutput(output string) error {
 	if err := validateDocument([]byte(OutputSchema), output); err != nil {
 		return sdkerrors.Wrap(ErrInvalidResponseOutput, err.Error())
 	}
+	return nil
+}
+
+func ValidateResponseOutputBody(schemas string, outputBody string) error {
+	outputSchemaBz, err := parseOutputSchema(schemas)
+	if err != nil {
+		return err
+	}
+
+	if err := validateDocument(outputSchemaBz, outputBody); err != nil {
+		return sdkerrors.Wrap(ErrInvalidResponseOutputBody, err.Error())
+	}
+
 	return nil
 }
 
@@ -116,6 +142,36 @@ func parseServiceSchemas(schemas string) (ServiceSchemas, error) {
 	return svcSchemas, nil
 }
 
+// parseInputSchema parses the input schema from the given schemas
+func parseInputSchema(schemas string) ([]byte, error) {
+	svcSchemas, err := parseServiceSchemas(schemas)
+	if err != nil {
+		return nil, err
+	}
+
+	inputSchemaBz, err := json.Marshal(svcSchemas.Input)
+	if err != nil {
+		return nil, sdkerrors.Wrap(ErrInvalidSchemas, fmt.Sprintf("failed to marshal the input schema: %s", err))
+	}
+
+	return inputSchemaBz, nil
+}
+
+// parseOutputSchema parses the output schema from the given schemas
+func parseOutputSchema(schemas string) ([]byte, error) {
+	svcSchemas, err := parseServiceSchemas(schemas)
+	if err != nil {
+		return nil, err
+	}
+
+	outputSchemaBz, err := json.Marshal(svcSchemas.Output)
+	if err != nil {
+		return nil, sdkerrors.Wrap(ErrInvalidSchemas, fmt.Sprintf("failed to marshal the output schema: %s", err))
+	}
+
+	return outputSchemaBz, nil
+}
+
 // validateDocument wraps the gojsonschema validation
 func validateDocument(schema []byte, document string) error {
 	schemaLoader := gojsonschema.NewBytesLoader(schema)
@@ -140,8 +196,8 @@ const (
 	PricingSchema = `
 	{
 		"$schema": "http://json-schema.org/draft-04/schema#",
-		"title": "service-pricing",
-		"description": "Service Pricing Schema",
+		"title": "iservice-pricing",
+		"description": "Interchain Service Pricing Schema",
 		"type": "object",
 		"definitions": {
 			"discount": {
@@ -229,8 +285,8 @@ const (
 	ResultSchema = `
 	{
 		"$schema": "http://json-schema.org/draft-04/schema#",
-		"title": "service-result",
-		"description": "Service Result Schema",
+		"title": "iservice-result",
+		"description": "Interchain Service Result Schema",
 		"type": "object",
 		"properties": {
 			"code": {
@@ -258,8 +314,8 @@ const (
 	InputSchema = `
 	{
 		"$schema": "http://json-schema.org/draft-04/schema#",
-		"title": "BioIdentify service input",
-		"description": "BioIdentify service input schema",
+		"title": "iservice-input",
+		"description": "Interchain Service Input schema",
 		"type": "object",
 		"properties": {
 			"header": {
@@ -280,8 +336,8 @@ const (
 	OutputSchema = `
 	{
 		"$schema": "http://json-schema.org/draft-04/schema#",
-		"title": "BioIdentify service output",
-		"description": "BioIdentify service output schema",
+		"title": "iservice-output",
+		"description": "Interchain Service Output Schema",
 		"type": "object",
 		"properties": {
 			"header": {
@@ -294,7 +350,7 @@ const (
 			}
 		},
 		"required": [
-			"header",
+			"header"
 		]
 	}`
 )

@@ -49,4 +49,10 @@ var (
 
 	ErrInvalidSchemaName = sdkerrors.Register(ModuleName, 39, "invalid service schema name")
 	ErrNotAuthorized     = sdkerrors.Register(ModuleName, 40, "not authorized")
+
+	ErrModuleServiceRegistered   = sdkerrors.Register(ModuleName, 41, "module service registered")
+	ErrInvalidModuleService      = sdkerrors.Register(ModuleName, 42, "invalid module service")
+	ErrBindModuleService         = sdkerrors.Register(ModuleName, 43, "can not bind module service")
+	ErrInvalidRequestInputBody   = sdkerrors.Register(ModuleName, 44, "invalid request input body")
+	ErrInvalidResponseOutputBody = sdkerrors.Register(ModuleName, 45, "invalid response output body")
 )

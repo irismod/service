@@ -10,6 +10,7 @@ const (
 	EventTypeNewBatchRequestProvider = "new_batch_request_provider"
 	EventTypeCompleteBatch           = "complete_batch"
 	EventTypeServiceSlash            = "service_slash"
+	EventTypeNoExchangeRate          = "no_exchange_rate"
 
 	AttributeValueCategory          = ModuleName
 	AttributeKeyAuthor              = "author"
@@ -24,6 +25,7 @@ const (
 	AttributeKeyRequestHeight       = "request_height"
 	AttributeKeyExpirationHeight    = "expiration_height"
 	AttributeKeySlashedCoins        = "slashed_coins"
+	AttributeKeyPriceDenom          = "price_denom"
 )
 
 type BatchState struct {

@@ -351,7 +351,7 @@ func (suite *KeeperTestSuite) TestKeeperRequestService() {
 
 	requestContextID, requestContext := suite.setRequestContext(ctx, consumer, providers, types.RUNNING, 0, "")
 
-	newProviders, totalServiceFees := suite.keeper.FilterServiceProviders(ctx, testServiceName, providers, testTimeout, testServiceFeeCap, consumer)
+	newProviders, totalServiceFees, _, _ := suite.keeper.FilterServiceProviders(ctx, testServiceName, providers, testTimeout, testServiceFeeCap, consumer)
 	suite.Equal(providers, newProviders)
 	suite.Equal("4stake", totalServiceFees.String())
 
@@ -400,13 +400,13 @@ func (suite *KeeperTestSuite) TestKeeperRequestService() {
 	suite.keeper.SetRequestVolume(ctx, consumer, testServiceName, testProvider1, 1)
 
 	// service fees will change due to the increased volume
-	_, totalServiceFees = suite.keeper.FilterServiceProviders(ctx, testServiceName, providers, testTimeout, testServiceFeeCap, consumer)
+	_, totalServiceFees, _, _ = suite.keeper.FilterServiceProviders(ctx, testServiceName, providers, testTimeout, testServiceFeeCap, consumer)
 	suite.Equal("2stake", totalServiceFees.String())
 
 	// satifying providers will change due to the condition changed
 	newTimeout := int64(40)
 
-	newProviders, _ = suite.keeper.FilterServiceProviders(ctx, testServiceName, providers, newTimeout, testServiceFeeCap, consumer)
+	newProviders, _, _, _ = suite.keeper.FilterServiceProviders(ctx, testServiceName, providers, newTimeout, testServiceFeeCap, consumer)
 	suite.Equal(0, len(newProviders))
 }
 

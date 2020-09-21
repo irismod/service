@@ -49,9 +49,9 @@ func (k Keeper) AddEarnedFee(ctx sdk.Context, provider sdk.AccAddress, fee sdk.C
 func (k Keeper) SetEarnedFees(ctx sdk.Context, provider sdk.AccAddress, fees sdk.Coins) {
 	store := ctx.KVStore(k.storeKey)
 
-	for _, fee := range fees {
-		bz := k.cdc.MustMarshalBinaryBare(&fee)
-		store.Set(types.GetEarnedFeesKey(provider, fee.Denom), bz)
+	for i := range fees {
+		bz := k.cdc.MustMarshalBinaryBare(&fees[i])
+		store.Set(types.GetEarnedFeesKey(provider, fees[i].Denom), bz)
 	}
 }
 
@@ -85,9 +85,9 @@ func (k Keeper) DeleteEarnedFees(ctx sdk.Context, provider sdk.AccAddress) {
 func (k Keeper) SetOwnerEarnedFees(ctx sdk.Context, owner sdk.AccAddress, fees sdk.Coins) {
 	store := ctx.KVStore(k.storeKey)
 
-	for _, fee := range fees {
-		bz := k.cdc.MustMarshalBinaryBare(&fee)
-		store.Set(types.GetOwnerEarnedFeesKey(owner, fee.Denom), bz)
+	for i := range fees {
+		bz := k.cdc.MustMarshalBinaryBare(&fees[i])
+		store.Set(types.GetOwnerEarnedFeesKey(owner, fees[i].Denom), bz)
 	}
 }
 

@@ -94,6 +94,26 @@ func (k Keeper) AddServiceBinding(
 	return nil
 }
 
+// SetServiceBindingForGenesis sets the service binding for genesis
+func (k Keeper) SetServiceBindingForGenesis(
+	ctx sdk.Context,
+	svcBinding types.ServiceBinding,
+) error {
+	k.SetServiceBinding(ctx, svcBinding)
+	k.SetOwnerServiceBinding(ctx, svcBinding)
+	k.SetOwner(ctx, svcBinding.Provider, svcBinding.Owner)
+	k.SetOwnerProvider(ctx, svcBinding.Owner, svcBinding.Provider)
+
+	pricing, err := k.ParsePricing(ctx, svcBinding.Pricing)
+	if err != nil {
+		return err
+	}
+
+	k.SetPricing(ctx, svcBinding.ServiceName, svcBinding.Provider, pricing)
+
+	return nil
+}
+
 // UpdateServiceBinding updates the specified service binding
 func (k Keeper) UpdateServiceBinding(
 	ctx sdk.Context,
@@ -440,7 +460,12 @@ func (k Keeper) ParsePricing(ctx sdk.Context, pricing string) (p types.Pricing, 
 		return p, sdkerrors.Wrapf(types.ErrInvalidPricing, "invalid price: %s", err.Error())
 	}
 
-	p.Price = sdk.NewCoins(priceCoin)
+	if priceCoin.IsZero() {
+		p.Price = sdk.Coins{sdk.NewCoin(priceCoin.Denom, sdk.NewInt(0))}
+	} else {
+		p.Price = sdk.NewCoins(priceCoin)
+	}
+
 	p.PromotionsByTime = rawPricing.PromotionsByTime
 	p.PromotionsByVolume = rawPricing.PromotionsByVolume
 

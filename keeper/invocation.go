@@ -76,12 +76,12 @@ func (k Keeper) CreateRequestContext(
 		}
 	}
 
-	svcDef, found := k.GetServiceDefinition(ctx, serviceName)
+	_, found := k.GetServiceDefinition(ctx, serviceName)
 	if !found {
 		return nil, sdkerrors.Wrap(types.ErrUnknownServiceDefinition, serviceName)
 	}
 
-	if err := types.ValidateRequestInput(svcDef.Schemas, input); err != nil {
+	if err := types.ValidateRequestInput(input); err != nil {
 		return nil, err
 	}
 
@@ -378,11 +378,12 @@ func (k Keeper) InitiateRequests(
 	requestContextID tmbytes.HexBytes,
 	providers []sdk.AccAddress,
 	providerRequests map[string][]string,
-) {
+) []tmbytes.HexBytes {
 	requestContext, _ := k.GetRequestContext(ctx, requestContextID)
 	requestContext.BatchCounter++
 
 	requests := []types.CompactRequest{}
+	requestIDs := []tmbytes.HexBytes{}
 
 	for providerIndex, provider := range providers {
 		request := k.buildRequest(
@@ -403,6 +404,8 @@ func (k Keeper) InitiateRequests(
 			providerRequests[types.ActionTag(requestContext.ServiceName, provider.String())],
 			requestID.String(),
 		)
+
+		requestIDs = append(requestIDs, requestID)
 	}
 
 	requestContext.BatchState = types.BATCHRUNNING
@@ -424,6 +427,8 @@ func (k Keeper) InitiateRequests(
 			),
 		})
 	}
+
+	return requestIDs
 }
 
 // SkipCurrentRequestBatch skips the current request batch
@@ -793,7 +798,7 @@ func (k Keeper) FilterServiceProviders(
 	serviceFeeCap sdk.Coins,
 	consumer sdk.AccAddress,
 ) (
-	[]sdk.AccAddress, sdk.Coins,
+	[]sdk.AccAddress, sdk.Coins, string, error,
 ) {
 	var newProviders []sdk.AccAddress
 	var totalPrices sdk.Coins
@@ -803,7 +808,10 @@ func (k Keeper) FilterServiceProviders(
 
 		if found && binding.Available {
 			if binding.QoS <= uint64(timeout) {
-				price := k.GetPrice(ctx, consumer, binding)
+				price, rawDenom, err := k.GetExchangedPrice(ctx, consumer, binding)
+				if err != nil {
+					return nil, nil, rawDenom, err
+				}
 
 				if price.IsAllLTE(serviceFeeCap) {
 					newProviders = append(newProviders, provider)
@@ -813,7 +821,7 @@ func (k Keeper) FilterServiceProviders(
 		}
 	}
 
-	return newProviders, totalPrices
+	return newProviders, totalPrices, "", nil
 }
 
 // DeductServiceFees deducts the given service fees from the specified consumer
@@ -874,9 +882,7 @@ func (k Keeper) AddResponse(
 		return request, response, sdkerrors.Wrap(types.ErrInvalidResponse, "request is not active")
 	}
 
-	svcDef, _ := k.GetServiceDefinition(ctx, request.ServiceName)
-
-	if len(output) > 0 && types.ValidateResponseOutput(svcDef.Schemas, output) != nil {
+	if len(output) > 0 && types.ValidateResponseOutput(output) != nil {
 		if err = k.Slash(ctx, requestID); err != nil {
 			panic(err)
 		}

@@ -24,13 +24,17 @@ type Keeper struct {
 	tokenKeeper types.TokenKeeper
 	paramSpace  paramstypes.Subspace
 
-	feeCollectorName string // name of the FeeCollector ModuleAccount
+	// name of the FeeCollector ModuleAccount
+	feeCollectorName string
 
 	// used to map the module name to response callback
 	respCallbacks map[string]types.ResponseCallback
 
 	// used to map the module name to state callback
 	stateCallbacks map[string]types.StateCallback
+
+	// used to map the module name to module service
+	moduleServices map[string]*types.ModuleService
 }
 
 // NewKeeper creates a new service Keeper instance
@@ -69,6 +73,8 @@ func NewKeeper(
 
 	keeper.respCallbacks = make(map[string]types.ResponseCallback)
 	keeper.stateCallbacks = make(map[string]types.StateCallback)
+	keeper.moduleServices = make(map[string]*types.ModuleService)
+
 	return keeper
 }
 

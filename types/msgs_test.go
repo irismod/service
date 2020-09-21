@@ -159,7 +159,7 @@ func TestMsgBindServiceValidation(t *testing.T) {
 	emptyAddress := sdk.AccAddress{}
 
 	invalidLongName := strings.Repeat("s", MaxNameLength+1)
-	invalidDeposit := sdk.Coins{}
+	invalidDeposit := sdk.Coins{sdk.Coin{Denom: "stake", Amount: sdk.NewInt(-1)}}
 	invalidQoS := uint64(0)
 
 	invalidPricing := `{"price":"1stake","other":"notallowedfield"}`
